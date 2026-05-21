@@ -17,8 +17,8 @@ You are working in a pnpm-workspaces monorepo. Loaded every session.
 - License: Elastic License 2.0 — all NEW dependencies MUST be MIT/Apache-2.0/BSD/ISC
 
 ## Hard rules
-1. NEVER use `any`. Use `unknown` and narrow. Escape hatch:
-   `// TODO(basile): tighten this`.
+1. NEVER use `any`. Use `unknown` and narrow. No escape hatch — no
+   suppression directive will be accepted (see rule 14).
 2. NEVER add a dependency without (a) justification in PR description,
    (b) verified npm provenance, (c) license check (MIT/Apache/BSD/ISC only).
 3. ALWAYS write the failing test first. Order: red → green → refactor.
@@ -123,7 +123,19 @@ You are working in a pnpm-workspaces monorepo. Loaded every session.
 - `apps/web/src/components`    → AppShell, layout, app-wide components
 - `apps/web/src/features`      → feature wiring (imports `app-*/ui` + `app-*/shared`)
 
-14. NEVER write comments by default. Code explains itself through naming and
+14. NEVER suppress a lint, type, or AST rule. No `// biome-ignore`,
+    `// eslint-disable*`, `// @ts-ignore`, `// @ts-expect-error`,
+    `// @ts-nocheck`, file-level `/* eslint-disable */`, or any equivalent
+    directive. No allowlist file with per-path exceptions. No
+    `// check-source-disable-next-line` (we don't ship one). If a rule is
+    blocking you, the answer is to fix the code, not silence the rule. If
+    the rule is genuinely wrong for the project, remove it from
+    `biome.json` / `scripts/check-source.ts` in a separate PR with
+    justification — but global, not per-line.
+    Similarly: no `as` cast outside `as const`. No `!` non-null assertion.
+    Use parsers, type guards, or `satisfies` / schema validation.
+
+15. NEVER write comments by default. Code explains itself through naming and
     structure. Two and only two reasons to add a comment:
     (a) The code is confusing without it — a non-obvious invariant, a subtle
         correctness constraint, an algorithm whose intent isn't readable from
@@ -145,3 +157,4 @@ You are working in a pnpm-workspaces monorepo. Loaded every session.
 - `.claude/rules/mobile.md`
 - `.claude/rules/ui.md`
 - `.claude/rules/comments.md`
+- `.claude/rules/lint.md`

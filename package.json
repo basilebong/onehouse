@@ -7,19 +7,23 @@
   "license": "Elastic-2.0",
   "scripts": {
     "preinstall": "npx only-allow pnpm",
+    "hooks:install": "git config core.hooksPath .githooks",
     "dev": "concurrently -k -n srv,web -c blue,green \"bun --hot apps/server/src/index.ts\" \"pnpm --filter @onehouse/web dev\"",
     "build": "pnpm --filter @onehouse/web build",
     "typecheck": "tsc -b --noEmit",
     "test": "bun test",
     "check": "biome check .",
+    "check:source": "bun ./scripts/check-source.ts",
     "format": "biome format --write .",
+    "lint:fix": "biome check --write .",
     "auth:generate": "bunx @better-auth/cli generate --config better-auth.config.ts --output packages/core/src/server/auth/schema.ts",
     "db:generate": "bun --bun drizzle-kit generate",
     "db:migrate": "bun --bun ./scripts/migrate.ts",
     "license:check": "bunx license-checker-rseidelsohn --production --onlyAllow 'MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause;ISC;0BSD;CC0-1.0;Unlicense'"
   },
   "devDependencies": {
-    "concurrently": "9.1.0"
+    "concurrently": "9.1.0",
+    "typescript": "5.7.2"
   },
   "engines": {
     "node": ">=20"

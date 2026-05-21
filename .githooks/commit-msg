@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+msg_file="$1"
+first_line="$(head -n1 "${msg_file}")"
+
+case "${first_line}" in
+  Merge*|Revert*|fixup!*|squash!*|"") exit 0 ;;
+esac
+
+if [[ "${first_line}" =~ ^(shared|grocery):\ .+ ]]; then
+  exit 0
+fi
+
+cat >&2 <<EOF
+✗ Commit message must start with one of the predefined modules:
+
+    shared:  <subject>
+    grocery: <subject>
+
+  shared  → core platform, infra, CI, docs, apps/server, apps/web, packages/core
+  grocery → packages/app-grocery
+
+Got:
+    ${first_line}
+EOF
+exit 1

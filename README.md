@@ -70,12 +70,15 @@ pnpm install
 cp .env.example .env
 # edit .env — at minimum BETTER_AUTH_SECRET (openssl rand -hex 32)
 
-# 3. Generate auth + DB schema, run migrations
+# 3. Install git hooks (one-time, points git at .githooks/)
+pnpm hooks:install
+
+# 4. Generate auth + DB schema, run migrations
 pnpm auth:generate
 pnpm db:generate
 pnpm db:migrate
 
-# 4. Dev (host) — server (3000) + Vite (5173) with hot reload
+# 5. Dev (host) — server (3000) + Vite (5173) with hot reload
 pnpm dev
 
 # OR Dev (Docker) — bind-mounted hot reload
@@ -91,7 +94,10 @@ Open <http://localhost:5173>.
 | `pnpm dev`                 | Server + Vite, hot reload                       |
 | `pnpm test`                | `bun test`                                      |
 | `pnpm typecheck`           | `tsc -b --noEmit` across the workspace          |
-| `pnpm check`               | Biome lint + format check                       |
+| `pnpm check`               | Biome lint + format check (incl. import order)  |
+| `pnpm check:source`        | No-bare-`as` + sorted-named-exports (TS AST)    |
+| `pnpm lint:fix`            | Biome auto-fix (organizes imports, etc.)        |
+| `pnpm hooks:install`       | Point git at `.githooks/` (one-time)            |
 | `pnpm auth:generate`       | Regenerate Better Auth Drizzle schema; commit   |
 | `pnpm db:generate`         | Generate Drizzle migration from schema diff     |
 | `pnpm db:migrate`          | Apply pending migrations                        |
@@ -113,6 +119,29 @@ docker compose up -d
 
 The production image runs one Bun process serving `/api/auth/*`, `/api/*`,
 `/mcp`, and the static React bundle.
+
+## Commit format
+
+Enforced by the `commit-msg` hook in `.githooks/`. Two allowed modules:
+
+```
+shared:  <subject>
+grocery: <subject>
+```
+
+- `shared` — core platform, infra, CI, docs, `apps/server`, `apps/web`,
+  `packages/core`
+- `grocery` — anything in `packages/app-grocery`
+
+Merge/revert/fixup/squash commits bypass the check.
+
+## Hooks
+
+`pnpm hooks:install` points git at `.githooks/`. Two hooks:
+
+- `pre-commit` — runs `biome check` on staged `.ts`/`.tsx`, the AST
+  `check:source` (no bare `as`, sorted named exports), and `tsc -b`.
+- `commit-msg` — validates the commit message format above.
 
 ## Mobile-first
 

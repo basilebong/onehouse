@@ -16,6 +16,9 @@
       "packages/core/src/server/auth/schema.ts"
     ]
   },
+  "organizeImports": {
+    "enabled": true
+  },
   "formatter": {
     "enabled": true,
     "indentStyle": "space",
@@ -27,17 +30,26 @@
     "rules": {
       "recommended": true,
       "suspicious": {
-        "noExplicitAny": "error",
-        "noConsoleLog": "warn"
+        "noExplicitAny": "error"
       },
       "style": {
         "useImportType": "error",
         "useExportType": "error",
-        "noNonNullAssertion": "warn"
+        "noNonNullAssertion": "error",
+        "useNodejsImportProtocol": "error",
+        "useConsistentArrayType": { "level": "error", "options": { "syntax": "shorthand" } }
       },
       "correctness": {
         "noUnusedImports": "error",
         "noUnusedVariables": "error"
+      },
+      "nursery": {
+        "useSortedClasses": {
+          "level": "warn",
+          "options": {
+            "functions": ["cn", "clsx", "cva", "tw"]
+          }
+        }
       }
     }
   },

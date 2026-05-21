@@ -67,6 +67,8 @@ await new Promise((r) => setTimeout(r, 50));
 ```
 Add: `// Bun.serve race: socket not bound until next tick. See oven-sh/bun#12345.`
 
-## Escape hatch
+## No escape hatch
 
-If a rule forces a `// TODO(basile): tighten this <reason>` (per types.md), that's allowed. The reason is part of the requirement.
+There is no `// TODO(basile)` carve-out. Per CLAUDE.md rule 14, no
+suppression / disable / ignore directives of any kind. If the type system
+or a lint rule blocks you, fix the code.

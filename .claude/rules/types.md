@@ -1,5 +1,28 @@
 # Type rules
 
+## `as` is banned (except `as const`)
+
+`pnpm check:source` enforces this. The only allowed form is `expr as const`.
+Narrow with type guards, ts-pattern, or schema parsing. Angle-bracket casts
+(`<T>x`) are also blocked.
+
+No exceptions, including for branded IDs:
+
+- Use Valibot's `v.brand()` action to produce branded values. The cast lives
+  inside Valibot, not in our code.
+- Do NOT hand-roll `parseUserId = (s) => s as UserId`. The function fails
+  `check:source`.
+- The brand TYPE definition (`type UserId = Brand<string, "UserId">`) is
+  fine — it contains no runtime cast.
+
+```ts
+import * as v from "valibot";
+
+export const UserIdSchema = v.pipe(v.string(), v.minLength(1), v.brand("UserId"));
+export type UserId = v.InferOutput<typeof UserIdSchema>;
+export const parseUserId = (raw: unknown): UserId => v.parse(UserIdSchema, raw);
+```
+
 ## `any` is banned
 
 Biome's `noExplicitAny: error` blocks merge. Use `unknown` and narrow with type

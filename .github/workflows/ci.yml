@@ -17,6 +17,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
       - run: pnpm check
+      - run: pnpm check:source
 
   typecheck:
     runs-on: ubuntu-latest

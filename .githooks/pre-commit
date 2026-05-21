@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+cd "$(git rev-parse --show-toplevel)"
+
+staged_ts="$(git diff --cached --name-only --diff-filter=ACMR -- '*.ts' '*.tsx')"
+
+if [ -z "${staged_ts}" ]; then
+  exit 0
+fi
+
+echo "→ biome check"
+pnpm exec biome check --no-errors-on-unmatched ${staged_ts}
+
+echo "→ check-source (no-bare-as, sorted-exports)"
+bun ./scripts/check-source.ts ${staged_ts}
+
+echo "→ typecheck"
+pnpm exec tsc -b --noEmit
