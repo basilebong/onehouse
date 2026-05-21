@@ -24,7 +24,7 @@ WORKDIR /app
 COPY . .
 RUN pnpm --filter @onehouse/web build
 RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store \
-    pnpm prune --prod --ignore-scripts
+    npm_config_confirm_modules_purge=false pnpm prune --prod --ignore-scripts
 
 FROM oven/bun:1-slim AS runtime
 WORKDIR /app
