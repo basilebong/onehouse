@@ -1,0 +1,12 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+
+minimumReleaseAge: 1440
+minimumReleaseAgeExclude:
+  - "@onehouse/*"
+blockExoticSubdeps: true
+
+allowBuilds:
+  - esbuild
+  - "@biomejs/biome"

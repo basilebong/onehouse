@@ -1,0 +1,21 @@
+{
+  "name": "@onehouse/app-grocery",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "Elastic-2.0",
+  "exports": {
+    "./shared": "./src/shared/index.ts",
+    "./server": "./src/server/index.ts",
+    "./tools": "./src/tools/index.ts",
+    "./ui": "./src/ui/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -b --noEmit",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@onehouse/core": "workspace:*"
+  },
+  "devDependencies": {}
+}

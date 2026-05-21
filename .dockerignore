@@ -1,0 +1,14 @@
+node_modules
+**/node_modules
+**/dist
+**/.turbo
+**/coverage
+data
+.git
+.github
+.claude
+*.md
+!LICENSE
+!NOTICE
+.env*
+!.env.example

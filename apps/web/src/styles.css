@@ -1,0 +1,11 @@
+@import "tailwindcss";
+
+/* Onehouse global styles. Component-level styles live with their components.
+ * Keep this file SMALL — Tailwind utilities first, CSS only for what utilities
+ * can't express (safe-area handling, font loading, scrollbar tweaks). */
+
+html,
+body,
+#root {
+  min-height: 100dvh;
+}

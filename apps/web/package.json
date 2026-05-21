@@ -1,0 +1,20 @@
+{
+  "name": "@onehouse/web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "Elastic-2.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc -b --noEmit",
+    "test": "bun test",
+    "e2e": "playwright test"
+  },
+  "dependencies": {
+    "@onehouse/core": "workspace:*",
+    "@onehouse/app-grocery": "workspace:*"
+  },
+  "devDependencies": {}
+}
