@@ -8,12 +8,7 @@ services:
     restart: always
     volumes:
       - ./data:/data
-    environment:
-      - BETTER_AUTH_URL=${BETTER_AUTH_URL}
-      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET}
-      - GOOGLE_ID=${GOOGLE_ID}
-      - GOOGLE_SECRET=${GOOGLE_SECRET}
-      - MCP_HOST=${MCP_HOST}
+    env_file: .env
     expose:
       - "3000"
 

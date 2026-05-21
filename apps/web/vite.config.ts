@@ -1,5 +1,7 @@
-import { defineConfig } from "vite";
 import { resolve } from "node:path";
+import { defineConfig } from "vite";
+
+const apiTarget = `http://localhost:${process.env.PORT ?? 3000}`;
 
 export default defineConfig({
   plugins: [],
@@ -11,8 +13,8 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      "/api": { target: "http://localhost:3000", ws: true, changeOrigin: true },
-      "/mcp": { target: "http://localhost:3000", changeOrigin: true },
+      "/api": { target: apiTarget, ws: true, changeOrigin: true },
+      "/mcp": { target: apiTarget, changeOrigin: true },
     },
   },
 });

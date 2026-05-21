@@ -7,4 +7,4 @@ Bun.serve({
   fetch: app.fetch,
 });
 
-console.log(`onehouse server listening on http://localhost:${port}`);
+console.info(`onehouse server listening on http://localhost:${port}`);

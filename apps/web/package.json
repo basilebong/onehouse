@@ -14,7 +14,9 @@
   },
   "dependencies": {
     "@onehouse/core": "workspace:*",
-    "@onehouse/app-grocery": "workspace:*"
+    "@onehouse/app-grocery": "workspace:*",
+    "clsx": "2.1.1",
+    "tailwind-merge": "2.5.5"
   },
   "devDependencies": {}
 }

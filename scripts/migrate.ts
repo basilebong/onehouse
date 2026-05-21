@@ -1,1 +1,1 @@
-console.log("migrate: no migrations to apply yet (scaffold)");
+console.info("migrate: no migrations to apply yet (scaffold)");

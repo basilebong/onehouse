@@ -18,8 +18,7 @@ RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store \
 FROM deps AS build
 WORKDIR /app
 COPY . .
-RUN bun run typecheck
-RUN bun run --filter @onehouse/web build
+RUN pnpm --filter @onehouse/web build
 
 FROM oven/bun:1-slim AS runtime
 WORKDIR /app

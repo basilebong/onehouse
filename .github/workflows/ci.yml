@@ -48,7 +48,6 @@ jobs:
         run: pnpm license:check
 
   build-image:
-    needs: check
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:

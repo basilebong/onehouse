@@ -3,6 +3,10 @@ node_modules
 **/dist
 **/.turbo
 **/coverage
+**/*.test.ts
+**/tests
+**/e2e
+playwright.config.ts
 data
 .git
 .github
