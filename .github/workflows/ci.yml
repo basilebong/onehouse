@@ -10,42 +10,38 @@ permissions:
   contents: read
 
 jobs:
-  check:
+  lint:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - run: pnpm check
 
-      - uses: pnpm/action-setup@v4
-        with:
-          version: latest
+  typecheck:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - run: pnpm typecheck
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: pnpm
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - run: pnpm test
 
-      - uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
-
-      - name: Install
-        run: pnpm install --frozen-lockfile
-
-      - name: Lint + format
-        run: pnpm check
-
-      - name: Typecheck
-        run: pnpm typecheck
-
-      - name: Test
-        run: pnpm test
-
-      - name: Audit
-        run: pnpm audit --audit-level=high
-
-      - name: License check
-        run: pnpm license:check
+  supply-chain:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - run: pnpm audit --audit-level=high
+      - run: pnpm license:check
 
   build-image:
     runs-on: ubuntu-latest
