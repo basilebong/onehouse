@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "packageManager": "pnpm@latest",
+  "packageManager": "pnpm@10.33.0",
   "license": "Elastic-2.0",
   "scripts": {
     "preinstall": "npx only-allow pnpm",
@@ -19,7 +19,7 @@
     "auth:generate": "bunx @better-auth/cli generate --config better-auth.config.ts --output packages/core/src/server/auth/schema.ts",
     "db:generate": "bun --bun drizzle-kit generate",
     "db:migrate": "bun --bun ./scripts/migrate.ts",
-    "license:check": "pnpm dlx license-checker-rseidelsohn --production --onlyAllow 'MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause;ISC;0BSD;CC0-1.0;Unlicense'"
+    "license:check": "pnpm dlx license-checker-rseidelsohn --production --excludePrivatePackages --onlyAllow 'MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause;ISC;0BSD;CC0-1.0;Unlicense'"
   },
   "devDependencies": {
     "concurrently": "9.1.0",
@@ -27,6 +27,6 @@
     "typescript": "5.7.2"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   }
 }
