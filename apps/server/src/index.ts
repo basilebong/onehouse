@@ -1,10 +1,11 @@
+import { parseEnv } from "@onehouse/core/shared";
 import { app } from "./composition.ts";
 
-const port = Number(process.env.PORT ?? 3000);
+const env = parseEnv(process.env);
 
 Bun.serve({
-  port,
+  port: env.PORT,
   fetch: app.fetch,
 });
 
-console.info(`onehouse server listening on http://localhost:${port}`);
+console.info(`onehouse server listening on http://localhost:${env.PORT}`);

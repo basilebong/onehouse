@@ -1,7 +1,9 @@
 import { resolve } from "node:path";
+import { parseEnv } from "@onehouse/core/shared";
 import { defineConfig } from "vite";
 
-const apiTarget = `http://localhost:${process.env.PORT ?? 3000}`;
+const env = parseEnv(process.env);
+const apiTarget = `http://localhost:${env.PORT}`;
 
 export default defineConfig({
   plugins: [],

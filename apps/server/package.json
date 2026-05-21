@@ -7,12 +7,13 @@
   "scripts": {
     "dev": "bun --hot src/index.ts",
     "start": "bun src/index.ts",
-    "typecheck": "tsc -b --noEmit",
+    "typecheck": "tsc -b",
     "test": "bun test"
   },
   "dependencies": {
     "@onehouse/core": "workspace:*",
-    "@onehouse/app-grocery": "workspace:*"
+    "@onehouse/app-grocery": "workspace:*",
+    "hono": "4.10.0"
   },
   "devDependencies": {}
 }

@@ -9,9 +9,11 @@
     "./server": "./src/server/index.ts"
   },
   "scripts": {
-    "typecheck": "tsc -b --noEmit",
+    "typecheck": "tsc -b",
     "test": "bun test"
   },
-  "dependencies": {},
+  "dependencies": {
+    "valibot": "1.4.0"
+  },
   "devDependencies": {}
 }

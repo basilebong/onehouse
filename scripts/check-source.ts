@@ -67,11 +67,7 @@ const checkFile = (file: string): Violation[] => {
       });
     }
 
-    if (
-      ts.isExportDeclaration(node) &&
-      node.exportClause &&
-      ts.isNamedExports(node.exportClause)
-    ) {
+    if (ts.isExportDeclaration(node) && node.exportClause && ts.isNamedExports(node.exportClause)) {
       const specs = node.exportClause.elements;
       const names = specs.map((e) => e.name.text);
       const sorted = [...names].toSorted((a, b) => a.localeCompare(b));

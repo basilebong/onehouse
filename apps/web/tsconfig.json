@@ -15,8 +15,5 @@
     }
   },
   "include": ["src/**/*", "vite.config.ts", "e2e/**/*"],
-  "references": [
-    { "path": "../../packages/core" },
-    { "path": "../../packages/app-grocery" }
-  ]
+  "references": [{ "path": "../../packages/core" }, { "path": "../../packages/app-grocery" }]
 }

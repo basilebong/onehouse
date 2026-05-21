@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { app } from "../src/composition.ts";
+import { app } from "./composition.ts";
 
 describe("composition", () => {
   test("GET /healthz returns ok", async () => {

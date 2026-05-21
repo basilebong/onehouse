@@ -8,7 +8,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "typecheck": "tsc -b --noEmit",
+    "typecheck": "tsc -b",
     "test": "bun test",
     "e2e": "playwright test"
   },
@@ -18,5 +18,8 @@
     "clsx": "2.1.1",
     "tailwind-merge": "2.5.5"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@playwright/test": "1.49.1",
+    "vite": "6.0.7"
+  }
 }
