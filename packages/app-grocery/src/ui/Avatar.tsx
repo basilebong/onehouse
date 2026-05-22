@@ -11,6 +11,9 @@ export const Avatar = ({ author, size = 24 }: AvatarProps): ReactElement => {
   const palette = paletteFor(author.id);
   return (
     <div
+      role="img"
+      aria-label={`Added by ${author.name}`}
+      title={author.name}
       className="grid shrink-0 place-items-center rounded-full font-semibold text-[10px]"
       style={{
         width: size,
@@ -18,10 +21,8 @@ export const Avatar = ({ author, size = 24 }: AvatarProps): ReactElement => {
         background: palette.bg,
         color: palette.fg,
       }}
-      title={author.name}
-      aria-label={`Added by ${author.name}`}
     >
-      {author.initial}
+      <span aria-hidden="true">{author.initial}</span>
     </div>
   );
 };

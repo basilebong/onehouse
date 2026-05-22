@@ -113,7 +113,7 @@ export const EditItemForm = ({
         <label className="block">
           <span className="font-medium text-slate-500 text-xs uppercase tracking-wider">
             Description{" "}
-            <span className="font-normal text-slate-300 normal-case tracking-normal">
+            <span className="font-normal text-slate-500 normal-case tracking-normal">
               — optional
             </span>
           </span>

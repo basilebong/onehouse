@@ -27,6 +27,13 @@ const deriveIdentity = (
   return fallbackIdentity;
 };
 
+const WELCOME_DELAY_MS = 800;
+
+const prefersReducedMotion = (): boolean =>
+  typeof window !== "undefined" &&
+  typeof window.matchMedia === "function" &&
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
 export const CheckingScreen = (): React.ReactElement => {
   const router = useRouter();
   const session = useSession();
@@ -38,9 +45,10 @@ export const CheckingScreen = (): React.ReactElement => {
       router.navigate({ to: "/sign-in" });
       return;
     }
+    const delay = prefersReducedMotion() ? 0 : WELCOME_DELAY_MS;
     const timer = window.setTimeout(() => {
       router.navigate({ to: "/grocery" });
-    }, 800);
+    }, delay);
     return () => window.clearTimeout(timer);
   }, [session.isPending, session.data, router]);
 

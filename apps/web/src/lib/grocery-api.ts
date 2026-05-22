@@ -5,6 +5,7 @@ import {
   GroceryItemIdSchema,
   type UpdateItemInput,
 } from "@onehouse/app-grocery/shared";
+import { UserIdSchema } from "@onehouse/core/shared";
 import * as v from "valibot";
 
 const ItemSchema = v.object({
@@ -16,13 +17,13 @@ const ItemSchema = v.object({
     v.object({
       kind: v.literal("purchased"),
       purchasedAt: v.number(),
-      purchasedBy: v.string(),
+      purchasedBy: UserIdSchema,
     }),
   ]),
   createdAt: v.number(),
   updatedAt: v.number(),
   addedBy: v.object({
-    id: v.string(),
+    id: UserIdSchema,
     name: v.string(),
     initial: v.string(),
   }),

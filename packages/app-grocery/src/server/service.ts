@@ -1,7 +1,7 @@
 import type { Db } from "@onehouse/core/server";
 import { desc, eq } from "@onehouse/core/server/drizzle";
 import { users } from "@onehouse/core/server/schema";
-import { type Result, err, isErr, ok } from "@onehouse/core/shared";
+import { type Result, type UserId, err, isErr, ok } from "@onehouse/core/shared";
 import { ulid } from "ulid";
 import {
   type CreateItemInput,
@@ -17,9 +17,9 @@ import { rowToItem, serializeStatus } from "./serialize.ts";
 
 export type GroceryService = {
   list(): Promise<GroceryItem[]>;
-  create(input: CreateItemInput, by: string): Promise<Result<GroceryItem, GroceryError>>;
+  create(input: CreateItemInput, by: UserId): Promise<Result<GroceryItem, GroceryError>>;
   update(id: GroceryItemId, input: UpdateItemInput): Promise<Result<GroceryItem, GroceryError>>;
-  markPurchased(id: GroceryItemId, by: string): Promise<Result<GroceryItem, GroceryError>>;
+  markPurchased(id: GroceryItemId, by: UserId): Promise<Result<GroceryItem, GroceryError>>;
   markPending(id: GroceryItemId): Promise<Result<GroceryItem, GroceryError>>;
   remove(id: GroceryItemId): Promise<Result<{ id: GroceryItemId }, GroceryError>>;
   removeIfPurchased(
@@ -32,7 +32,7 @@ type AuthorJoin = {
   author: { id: string; name: string | null; email: string | null } | null;
 };
 
-const fetchWithAuthor = async (db: Db, id: string): Promise<AuthorJoin | null> => {
+const fetchWithAuthor = async (db: Db, id: GroceryItemId): Promise<AuthorJoin | null> => {
   const rows = await db
     .select({ item: groceryItems, author: { id: users.id, name: users.name, email: users.email } })
     .from(groceryItems)
@@ -57,7 +57,7 @@ export const createGroceryService = (db: Db): GroceryService => ({
 
   async create(input, by) {
     const now = new Date();
-    const id = ulid();
+    const id = parseGroceryItemId(ulid());
     await db.insert(groceryItems).values({
       id,
       name: input.name,
@@ -131,7 +131,7 @@ export const createGroceryService = (db: Db): GroceryService => ({
     const row = await fetchWithAuthor(db, id);
     if (row === null) return err({ kind: "not_found", id });
     await db.delete(groceryItems).where(eq(groceryItems.id, id));
-    return ok({ id: parseGroceryItemId(id) });
+    return ok({ id });
   },
 
   async removeIfPurchased(id) {
@@ -139,9 +139,9 @@ export const createGroceryService = (db: Db): GroceryService => ({
     if (row === null) return err({ kind: "not_found", id });
     const current = rowToItem(row.item, row.author);
     if (current.status.kind !== "purchased") {
-      return ok({ id: parseGroceryItemId(id), removed: false });
+      return ok({ id, removed: false });
     }
     await db.delete(groceryItems).where(eq(groceryItems.id, id));
-    return ok({ id: parseGroceryItemId(id), removed: true });
+    return ok({ id, removed: true });
   },
 });

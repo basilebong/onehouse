@@ -1,8 +1,9 @@
+import type { UserId } from "@onehouse/core/shared";
 import type { GroceryItemId } from "./ids.ts";
 import type { GroceryStatus } from "./state.ts";
 
 export type GroceryAuthor = {
-  id: string;
+  id: UserId;
   name: string;
   initial: string;
 };

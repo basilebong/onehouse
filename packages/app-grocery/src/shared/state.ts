@@ -1,12 +1,12 @@
-import { type Result, err, ok } from "@onehouse/core/shared";
+import { type Result, type UserId, err, ok } from "@onehouse/core/shared";
 import { match } from "ts-pattern";
 
 export type GroceryStatus =
   | { kind: "pending" }
-  | { kind: "purchased"; purchasedAt: number; purchasedBy: string };
+  | { kind: "purchased"; purchasedAt: number; purchasedBy: UserId };
 
 export type GroceryTransition =
-  | { kind: "mark_purchased"; by: string; at: number }
+  | { kind: "mark_purchased"; by: UserId; at: number }
   | { kind: "mark_pending" };
 
 export type TransitionError = { kind: "already_in_state"; state: GroceryStatus["kind"] };

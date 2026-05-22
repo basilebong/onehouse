@@ -1,5 +1,6 @@
 import { BasketIcon, CheckSquareIcon, UserIcon } from "@phosphor-icons/react";
 import type { ComponentType, ReactElement } from "react";
+import { cn } from "./cn.ts";
 
 export type NavTab = "grocery" | "todo" | "me";
 
@@ -31,13 +32,14 @@ const Tab = ({
   <button
     type="button"
     onClick={onClick}
-    className={`flex min-h-11 flex-1 flex-col items-center justify-center gap-0.5 ${
-      active ? "text-slate-900" : "text-slate-400"
-    }`}
+    className={cn(
+      "flex min-h-11 flex-1 flex-col items-center justify-center gap-0.5",
+      active ? "text-slate-900" : "text-slate-500",
+    )}
     aria-current={active ? "page" : undefined}
   >
     <Icon size={22} weight={active ? "fill" : "regular"} />
-    <span className={`text-[11px] ${active ? "font-medium" : ""}`}>{label}</span>
+    <span className={cn("text-[11px]", active && "font-medium")}>{label}</span>
   </button>
 );
 

@@ -1,3 +1,4 @@
+import { type UserId, parseUserId } from "@onehouse/core/shared";
 import * as v from "valibot";
 import {
   type GroceryAuthor,
@@ -12,14 +13,21 @@ const StoredStatusSchema = v.union([
   v.object({
     kind: v.literal("purchased"),
     purchasedAt: v.number(),
-    purchasedBy: v.string(),
+    purchasedBy: v.pipe(v.string(), v.minLength(1), v.brand("UserId")),
   }),
 ]);
 
-const parseStatus = (raw: string): GroceryStatus => {
-  const parsed: unknown = JSON.parse(raw);
-  const result = v.safeParse(StoredStatusSchema, parsed);
-  return result.success ? result.output : { kind: "pending" };
+const parseStatus = (rowId: string, raw: string): GroceryStatus => {
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    const result = v.safeParse(StoredStatusSchema, parsed);
+    if (result.success) return result.output;
+    console.error("grocery: corrupt status_json, coercing to pending", { rowId, raw });
+    return { kind: "pending" };
+  } catch (e) {
+    console.error("grocery: invalid status_json, coercing to pending", { rowId, raw, error: e });
+    return { kind: "pending" };
+  }
 };
 
 export const serializeStatus = (status: GroceryStatus): string => JSON.stringify(status);
@@ -31,14 +39,16 @@ const initialOf = (name: string): string => {
   return first.charAt(0).toUpperCase();
 };
 
+const UNKNOWN_AUTHOR_ID: UserId = parseUserId("unknown");
+
 const toAuthor = (
   user: { id: string; name: string | null; email: string | null } | null,
 ): GroceryAuthor => {
-  if (user === null) return { id: "unknown", name: "Someone", initial: "·" };
+  if (user === null) return { id: UNKNOWN_AUTHOR_ID, name: "Someone", initial: "·" };
   const trimmedName = user.name?.trim();
   const displayName =
     trimmedName !== undefined && trimmedName.length > 0 ? trimmedName : (user.email ?? "Someone");
-  return { id: user.id, name: displayName, initial: initialOf(displayName) };
+  return { id: parseUserId(user.id), name: displayName, initial: initialOf(displayName) };
 };
 
 export const rowToItem = (
@@ -48,7 +58,7 @@ export const rowToItem = (
   id: parseGroceryItemId(row.id),
   name: row.name,
   description: row.description,
-  status: parseStatus(row.statusJson),
+  status: parseStatus(row.id, row.statusJson),
   createdAt: row.createdAt.getTime(),
   updatedAt: row.updatedAt.getTime(),
   addedBy: toAuthor(author),

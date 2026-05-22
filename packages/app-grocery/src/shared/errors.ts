@@ -1,7 +1,8 @@
 import { match } from "ts-pattern";
+import type { GroceryItemId } from "./ids.ts";
 
 export type GroceryError =
-  | { kind: "not_found"; id: string }
+  | { kind: "not_found"; id: GroceryItemId }
   | { kind: "invalid_input"; message: string }
   | { kind: "already_in_state"; state: "pending" | "purchased" };
 

@@ -12,8 +12,11 @@ type ListBodyProps = {
 };
 
 const SectionHeading = ({ children }: { children: string }): ReactElement => (
-  <li className="bg-white px-5 pt-5 pb-2 font-semibold text-[11px] text-slate-400 uppercase tracking-[0.12em]">
-    {children}
+  <li
+    role="presentation"
+    className="bg-white px-5 pt-5 pb-2 font-semibold text-[11px] text-slate-600 uppercase tracking-[0.12em]"
+  >
+    <h2 className="font-semibold">{children}</h2>
   </li>
 );
 

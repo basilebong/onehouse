@@ -11,9 +11,12 @@ type AuthGuardProps = {
 
 const DefaultFallback = (): ReactElement => (
   <main className="flex min-h-dvh flex-col bg-slate-50 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
-    <div className="-mt-12 flex flex-1 items-center justify-center">
+    <output
+      aria-label="Checking sign-in"
+      className="-mt-12 flex flex-1 items-center justify-center"
+    >
       <Spinner size={24} color="#0f172a" />
-    </div>
+    </output>
   </main>
 );
 
@@ -29,7 +32,7 @@ export const AuthGuard = ({ children, fallback }: AuthGuardProps): ReactElement 
     }
   }, [needsSignIn, router]);
 
-  if (session.data === null) {
+  if (!session.data) {
     return <>{fallback ?? <DefaultFallback />}</>;
   }
   return <>{children}</>;

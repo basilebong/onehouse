@@ -3,6 +3,7 @@ import type { ReactElement } from "react";
 import type { GroceryItem } from "../shared/index.ts";
 import { Avatar } from "./Avatar.tsx";
 import { RowActionsMenu } from "./RowActionsMenu.tsx";
+import { cn } from "./cn.ts";
 
 export type ItemSyncState = "synced" | "queued" | "error";
 
@@ -59,7 +60,7 @@ export const ItemRow = ({
 
       <div className="flex min-w-0 flex-1 flex-col">
         <div className="flex items-center gap-2">
-          <span className={`truncate font-medium text-base leading-tight ${nameClass}`}>
+          <span className={cn("truncate font-medium text-base leading-tight", nameClass)}>
             {item.name}
           </span>
           {queued && (
@@ -80,7 +81,7 @@ export const ItemRow = ({
           )}
         </div>
         {item.description !== null && item.description.length > 0 && (
-          <div className={`mt-0.5 truncate text-sm leading-snug ${descClass}`}>
+          <div className={cn("mt-0.5 truncate text-sm leading-snug", descClass)}>
             {item.description}
           </div>
         )}
