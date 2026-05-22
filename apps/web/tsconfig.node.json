@@ -3,21 +3,17 @@
   "compilerOptions": {
     "composite": true,
     "rootDir": ".",
-    "outDir": "./dist",
+    "outDir": "./dist/node",
     "noEmit": false,
     "emitDeclarationOnly": true,
     "declaration": true,
     "declarationMap": true,
-    "types": ["vite/client"],
+    "types": ["bun-types"],
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
     }
   },
-  "include": ["src/**/*", "e2e/**/*"],
-  "references": [
-    { "path": "./tsconfig.node.json" },
-    { "path": "../../packages/core" },
-    { "path": "../../packages/app-grocery" }
-  ]
+  "include": ["vite.config.ts"],
+  "references": [{ "path": "../../packages/core" }]
 }

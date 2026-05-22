@@ -28,8 +28,26 @@ const envSchema = v.object({
   GOOGLE_SECRET: v.optional(nonEmptySchema),
   MCP_HOST: v.optional(nonEmptySchema),
   DATABASE_PATH: v.optional(nonEmptySchema),
+  ONEHOUSE_ALLOWED_EMAILS: v.optional(nonEmptySchema),
 });
 
 export type Env = v.InferOutput<typeof envSchema>;
 
 export const parseEnv = (raw: Record<string, string | undefined>): Env => v.parse(envSchema, raw);
+
+const runtimeEnvSchema = v.object({
+  PORT: v.optional(portSchema, "3000"),
+  E2E_BASE_URL: v.optional(urlSchema, "http://localhost:5173"),
+  BETTER_AUTH_URL: urlSchema,
+  BETTER_AUTH_SECRET: secretSchema,
+  GOOGLE_ID: nonEmptySchema,
+  GOOGLE_SECRET: nonEmptySchema,
+  DATABASE_PATH: nonEmptySchema,
+  ONEHOUSE_ALLOWED_EMAILS: nonEmptySchema,
+  MCP_HOST: v.optional(nonEmptySchema),
+});
+
+export type RuntimeEnv = v.InferOutput<typeof runtimeEnvSchema>;
+
+export const parseRuntimeEnv = (raw: Record<string, string | undefined>): RuntimeEnv =>
+  v.parse(runtimeEnvSchema, raw);

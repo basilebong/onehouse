@@ -6,14 +6,17 @@
   "license": "Elastic-2.0",
   "exports": {
     "./shared": "./src/shared/index.ts",
-    "./server": "./src/server/index.ts"
+    "./server": "./src/server/index.ts",
+    "./server/test": "./src/server/test/index.ts"
   },
   "scripts": {
     "typecheck": "tsc -b",
     "test": "bun test"
   },
   "dependencies": {
+    "better-auth": "1.6.11",
+    "drizzle-orm": "0.45.2",
+    "hono": "4.12.21",
     "valibot": "1.4.0"
-  },
-  "devDependencies": {}
+  }
 }

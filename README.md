@@ -85,6 +85,7 @@ from browser code fails to type-check.
 - [Bun](https://bun.sh) (latest stable)
 - [pnpm](https://pnpm.io) 11+ (`npm install -g pnpm@latest`)
 - Docker + Docker Compose (for the dev container or prod build)
+- A Google Cloud project with an OAuth 2.0 Client ID (for sign-in)
 
 ## Getting started
 
@@ -94,15 +95,13 @@ pnpm install
 
 # 2. Configure
 cp .env.example .env
-# edit .env — at minimum BETTER_AUTH_SECRET (openssl rand -hex 32)
+# edit .env — see "Auth setup" below
 
 # 3. Install git hooks (one-time; lefthook writes .git/hooks/* — `.npmrc`
 #    has `ignore-scripts=true`, so this is NOT done automatically by install)
 pnpm hooks:install
 
-# 4. Generate auth + DB schema, run migrations
-pnpm auth:generate
-pnpm db:generate
+# 4. Run pending migrations (auth schema is committed, drizzle/0000_*.sql too)
 pnpm db:migrate
 
 # 5. Dev (host) — server (3000) + Vite (5173) with hot reload
@@ -113,6 +112,76 @@ docker compose --profile dev up
 ```
 
 Open <http://localhost:5173>.
+
+## Auth setup
+
+Sign-in goes through Google with an email allowlist enforced inside Better
+Auth. Without the allowlist, a Google login is rejected with `403` before
+any user row is created.
+
+### Google OAuth Client ID (one-time per developer)
+
+1. Open <https://console.cloud.google.com/apis/credentials>
+2. Create an **OAuth 2.0 Client ID**, type **Web application**
+3. Authorized JavaScript origins:
+   - `http://localhost:5173`
+4. Authorized redirect URIs:
+   - `http://localhost:5173/api/auth/callback/google`
+5. Copy the Client ID + Client Secret into `.env`:
+   ```ini
+   GOOGLE_ID=<client id>
+   GOOGLE_SECRET=<client secret>
+   ```
+
+In production, repeat with your real public URL (e.g. `https://onehouse.example.de`).
+
+### `.env` (auth-relevant fields)
+
+```ini
+BETTER_AUTH_URL=http://localhost:5173          # public origin the browser hits
+BETTER_AUTH_SECRET=<openssl rand -hex 32>       # 32+ random hex chars
+
+GOOGLE_ID=<from Google Cloud>
+GOOGLE_SECRET=<from Google Cloud>
+
+# Comma-separated allowlist. Sign-in is rejected for any other email.
+# Matched case-insensitively after trimming.
+ONEHOUSE_ALLOWED_EMAILS=basile@example.com,partner@example.com
+
+DATABASE_PATH=./data/app.db
+```
+
+`BETTER_AUTH_URL` is the user-visible origin. In dev it's the Vite server
+(`:5173`), which proxies `/api/*` → the Hono server on `$PORT`. Cookies are
+scoped to that origin, so Google's redirect must come back there too.
+
+### How the allowlist works
+
+Better Auth runs `databaseHooks.user.create.before` immediately after Google
+returns a verified profile, before any user row is inserted. The hook
+checks the email against `ONEHOUSE_ALLOWED_EMAILS` (parsed once at boot)
+and throws `APIError("FORBIDDEN")` if it isn't a match.
+
+Result: an unauthorised email gets a `403` on the callback, the `users` /
+`accounts` / `sessions` tables stay clean, and no session cookie is issued.
+
+To add a new family member:
+1. Append their Google account email to `ONEHOUSE_ALLOWED_EMAILS` in `.env`
+2. Restart the server (`pnpm dev` re-reads env on `bun --hot` restart)
+3. They click "Continue with Google"
+
+### Local sign-in flow (what you'll see)
+
+1. `pnpm dev` (or `docker compose --profile dev up`)
+2. Open <http://localhost:5173>
+3. Click "Continue with Google"
+4. Approve on Google's screen
+5. Redirected back to `/`; subsequent `/api/*` requests carry the
+   `onehouse.session_token` cookie
+
+If you're not on the allowlist, step 5 returns `403`; the URL will show
+the Better Auth error code. Fix: add your email to `ONEHOUSE_ALLOWED_EMAILS`
+and try again.
 
 ## Common commands
 
