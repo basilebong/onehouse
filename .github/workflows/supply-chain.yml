@@ -51,4 +51,8 @@ jobs:
           #   GitHub's scanner spuriously reports "MIT AND MS-PL" — verified false-positive against upstream source.
           # @better-fetch/fetch (better-auth HTTP client): package.json missing license field, but the published
           #   tarball ships an MIT LICENSE (copyright Bereket Engida). Verified in node_modules @ 1.1.21.
-          allow-dependencies-licenses: 'pkg:npm/rou3, pkg:npm/%40better-fetch/fetch'
+          # json-schema-typed (TypeScript types for JSON Schema, pulled in transitively by
+          #   @modelcontextprotocol/sdk via bunqueue): package.json declares "license": "BSD-2-Clause" and ships
+          #   a pure BSD-2-Clause LICENSE.md; GitHub's scanner spuriously appends "AND JSON" — verified false-positive
+          #   in node_modules @ 8.0.2. No runtime code, just .d.ts type definitions.
+          allow-dependencies-licenses: 'pkg:npm/rou3, pkg:npm/%40better-fetch/fetch, pkg:npm/json-schema-typed'
