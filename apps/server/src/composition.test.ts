@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import type { CleanupScheduler } from "@onehouse/app-grocery/server";
 import { createGroceryService } from "@onehouse/app-grocery/server";
-import { createAuditRecorder } from "@onehouse/core/server";
+import { createAssistantsService, createAuditRecorder } from "@onehouse/core/server";
 import type { Auth, Db } from "@onehouse/core/server";
 import { withTestAuth } from "@onehouse/core/server/test";
 import { createApp } from "./composition.ts";
@@ -24,6 +24,7 @@ const appFor = (auth: Auth, db: Db, baseURL = "http://localhost:5173") =>
     jwksOrigin: baseURL,
     allowedHosts: ["localhost", "localhost:5173"],
     audit: createAuditRecorder(db),
+    assistants: { service: createAssistantsService(db) },
     grocery: groceryFor(db),
   });
 
@@ -76,6 +77,37 @@ describe("composition", () => {
         expect(await res.json()).toMatchObject({
           user: { id: user.id, email: "basile@example.com" },
         });
+      },
+    );
+  });
+
+  test("GET /api/me/assistants without a session returns 401", async () => {
+    await withTestAuth({}, async ({ auth, db }) => {
+      const app = appFor(auth, db);
+      const res = await app.request("/api/me/assistants");
+      expect(res.status).toBe(401);
+    });
+  });
+
+  test("GET /api/me/assistants with a valid session returns an empty list initially", async () => {
+    await withTestAuth(
+      { allowedEmails: "basile@example.com" },
+      async ({ auth, db, signSessionCookie }) => {
+        const ctx = await auth.$context;
+        const user = await ctx.internalAdapter.createUser({
+          name: "Basile",
+          email: "basile@example.com",
+        });
+        const sessionRow = await ctx.internalAdapter.createSession(user.id);
+        const signed = await signSessionCookie(sessionRow.token);
+
+        const app = appFor(auth, db);
+        const res = await app.request("/api/me/assistants", {
+          headers: { cookie: `onehouse.session_token=${signed}` },
+        });
+
+        expect(res.status).toBe(200);
+        expect(await res.json()).toEqual({ assistants: [] });
       },
     );
   });

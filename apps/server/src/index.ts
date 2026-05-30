@@ -1,6 +1,7 @@
 import { dirname, resolve } from "node:path";
 import { createCleanupScheduler, createGroceryService } from "@onehouse/app-grocery/server";
 import {
+  createAssistantsService,
   createAuditRecorder,
   createAuth,
   createDb,
@@ -32,6 +33,7 @@ const auth = createAuth({
 });
 
 const groceryService = createGroceryService(db);
+const assistantsService = createAssistantsService(db);
 const audit = createAuditRecorder(db);
 const cleanup = createCleanupScheduler({
   service: groceryService,
@@ -44,6 +46,7 @@ const app = createApp({
   jwksOrigin: `http://localhost:${env.PORT}`,
   allowedHosts,
   audit,
+  assistants: { service: assistantsService },
   grocery: { service: groceryService, cleanup },
 });
 

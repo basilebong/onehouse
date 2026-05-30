@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import type { CleanupScheduler } from "@onehouse/app-grocery/server";
 import { createGroceryService } from "@onehouse/app-grocery/server";
-import { createAuditRecorder } from "@onehouse/core/server";
+import { type Db, createAssistantsService, createAuditRecorder } from "@onehouse/core/server";
 import { withTestAuth } from "@onehouse/core/server/test";
 import { type AppType, createApp } from "./composition.ts";
 
@@ -41,19 +41,39 @@ const dataPayload = (sseOrJson: string): unknown => {
   return JSON.parse(line === undefined ? sseOrJson : line.slice("data:".length).trim());
 };
 
-describe("MCP over OAuth (end-to-end)", () => {
-  test("Claude-style DCR + PKCE + consent + token grants access to grocery tools", async () => {
-    let app: AppType | undefined;
-    const server = Bun.serve({
-      port: 0,
-      fetch: (req) => app?.fetch(req) ?? new Response("not ready", { status: 503 }),
-    });
-    const baseURL = `http://localhost:${server.port}`;
-    const redirectUri = `${baseURL}/oauth/callback`;
+const firstConsentId = (payload: unknown): string => {
+  if (
+    payload !== null &&
+    typeof payload === "object" &&
+    "assistants" in payload &&
+    Array.isArray(payload.assistants)
+  ) {
+    const first: unknown = payload.assistants[0];
+    if (
+      first !== null &&
+      typeof first === "object" &&
+      "id" in first &&
+      typeof first.id === "string"
+    ) {
+      return first.id;
+    }
+  }
+  throw new Error("expected at least one connected assistant");
+};
 
-    try {
-      await withTestAuth({ allowedEmails: "basile@example.com", baseURL }, async (ctx) => {
-        const { auth, db, signSessionCookie } = ctx;
+type McpHarness = { baseURL: string; cookie: string; userId: string; db: Db };
+
+const withMcpServer = async (run: (h: McpHarness) => Promise<void>): Promise<void> => {
+  let app: AppType | undefined;
+  const server = Bun.serve({
+    port: 0,
+    fetch: (req) => app?.fetch(req) ?? new Response("not ready", { status: 503 }),
+  });
+  const baseURL = `http://localhost:${server.port}`;
+  try {
+    await withTestAuth(
+      { allowedEmails: "basile@example.com", baseURL },
+      async ({ auth, db, signSessionCookie }) => {
         const adapter = await auth.$context;
         const user = await adapter.internalAdapter.createUser({
           name: "Basile",
@@ -68,106 +88,163 @@ describe("MCP over OAuth (end-to-end)", () => {
           jwksOrigin: baseURL,
           allowedHosts: [`localhost:${server.port}`],
           audit: createAuditRecorder(db),
+          assistants: { service: createAssistantsService(db) },
           grocery: { service: createGroceryService(db), cleanup: noopCleanup },
         });
 
-        const register = await fetch(`${baseURL}/api/auth/oauth2/register`, {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify({
-            client_name: "Claude",
-            redirect_uris: [redirectUri],
-            token_endpoint_auth_method: "none",
-            grant_types: ["authorization_code", "refresh_token"],
-            response_types: ["code"],
-            scope: "openid profile email",
-          }),
-        });
-        expect(register.status).toBe(200);
-        const clientId: unknown = (await register.json()).client_id;
-        expect(typeof clientId).toBe("string");
+        await run({ baseURL, cookie, userId: user.id, db });
+      },
+    );
+  } finally {
+    await server.stop(true);
+  }
+};
 
-        const { verifier, challenge } = await pkce();
-        const authorize = await fetch(
-          `${baseURL}/api/auth/oauth2/authorize?${new URLSearchParams({
-            client_id: String(clientId),
-            redirect_uri: redirectUri,
-            response_type: "code",
-            scope: "openid profile email",
-            code_challenge: challenge,
-            code_challenge_method: "S256",
-            state: "xyz",
-            resource: `${baseURL}/mcp`,
-          })}`,
-          { headers: { cookie }, redirect: "manual" },
-        );
-        expect(authorize.status).toBe(302);
-        const location = authorize.headers.get("location") ?? "";
-        expect(location).toContain("/consent");
-        const oauthQuery = location.slice(location.indexOf("?") + 1);
+type OAuthGrant = { clientId: string; accessToken: string };
 
-        const consent = await fetch(`${baseURL}/api/auth/oauth2/consent`, {
-          method: "POST",
-          headers: { "content-type": "application/json", cookie, origin: baseURL },
-          body: JSON.stringify({ accept: true, oauth_query: oauthQuery }),
-        });
-        expect(consent.status).toBe(200);
-        const code = new URL((await consent.json()).url).searchParams.get("code");
-        expect(typeof code).toBe("string");
+const runClaudeOAuthFlow = async (baseURL: string, cookie: string): Promise<OAuthGrant> => {
+  const redirectUri = `${baseURL}/oauth/callback`;
+  const resource = `${baseURL}/mcp`;
 
-        const token = await fetch(`${baseURL}/api/auth/oauth2/token`, {
-          method: "POST",
-          headers: { "content-type": "application/x-www-form-urlencoded" },
-          body: new URLSearchParams({
-            grant_type: "authorization_code",
-            code: code ?? "",
-            redirect_uri: redirectUri,
-            client_id: String(clientId),
-            code_verifier: verifier,
-            resource: `${baseURL}/mcp`,
-          }).toString(),
-        });
-        expect(token.status).toBe(200);
-        const accessToken: unknown = (await token.json()).access_token;
-        expect(typeof accessToken).toBe("string");
+  const register = await fetch(`${baseURL}/api/auth/oauth2/register`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      client_name: "Claude",
+      redirect_uris: [redirectUri],
+      token_endpoint_auth_method: "none",
+      grant_types: ["authorization_code", "refresh_token"],
+      response_types: ["code"],
+      scope: "openid profile email",
+    }),
+  });
+  if (register.status !== 200) throw new Error(`register failed: ${register.status}`);
+  const clientId: unknown = (await register.json()).client_id;
+  if (typeof clientId !== "string") throw new Error("missing client_id");
 
-        const claims = jwtClaims(String(accessToken));
-        expect(claims.sub).toBe(user.id);
-        expect(claims.iss).toBe(`${baseURL}/api/auth`);
-        expect(Array.isArray(claims.aud) ? claims.aud : []).toContain(`${baseURL}/mcp`);
+  const { verifier, challenge } = await pkce();
+  const authorize = await fetch(
+    `${baseURL}/api/auth/oauth2/authorize?${new URLSearchParams({
+      client_id: clientId,
+      redirect_uri: redirectUri,
+      response_type: "code",
+      scope: "openid profile email",
+      code_challenge: challenge,
+      code_challenge_method: "S256",
+      state: "xyz",
+      resource,
+    })}`,
+    { headers: { cookie }, redirect: "manual" },
+  );
+  if (authorize.status !== 302) throw new Error(`authorize failed: ${authorize.status}`);
+  const location = authorize.headers.get("location") ?? "";
+  if (!location.includes("/consent")) throw new Error(`unexpected redirect: ${location}`);
+  const oauthQuery = location.slice(location.indexOf("?") + 1);
 
-        const unauthorized = await fetch(`${baseURL}/mcp`, {
-          method: "POST",
-          headers: { "content-type": "application/json", accept: "application/json" },
-          body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "tools/list" }),
-        });
-        expect(unauthorized.status).toBe(401);
+  const consent = await fetch(`${baseURL}/api/auth/oauth2/consent`, {
+    method: "POST",
+    headers: { "content-type": "application/json", cookie, origin: baseURL },
+    body: JSON.stringify({ accept: true, oauth_query: oauthQuery }),
+  });
+  if (consent.status !== 200) throw new Error(`consent failed: ${consent.status}`);
+  const code = new URL((await consent.json()).url).searchParams.get("code");
+  if (code === null) throw new Error("missing authorization code");
 
-        const call = await fetch(`${baseURL}/mcp`, {
-          method: "POST",
-          headers: {
-            "content-type": "application/json",
-            accept: "application/json, text/event-stream",
-            authorization: `Bearer ${String(accessToken)}`,
-          },
-          body: JSON.stringify({
-            jsonrpc: "2.0",
-            id: 2,
-            method: "tools/call",
-            params: { name: "grocery.add_item", arguments: { name: "Milk via Claude" } },
-          }),
-        });
-        expect(call.status).toBe(200);
-        const payload = dataPayload(await call.text());
-        expect(JSON.stringify(payload)).toContain("Milk via Claude");
+  const token = await fetch(`${baseURL}/api/auth/oauth2/token`, {
+    method: "POST",
+    headers: { "content-type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      grant_type: "authorization_code",
+      code,
+      redirect_uri: redirectUri,
+      client_id: clientId,
+      code_verifier: verifier,
+      resource,
+    }).toString(),
+  });
+  if (token.status !== 200) throw new Error(`token failed: ${token.status}`);
+  const accessToken: unknown = (await token.json()).access_token;
+  if (typeof accessToken !== "string") throw new Error("missing access_token");
 
-        const items = db.$client.query("SELECT name FROM grocery_items").all();
-        expect(items).toEqual([{ name: "Milk via Claude" }]);
-        const audit = db.$client.query("SELECT action, via FROM audit_log").all();
-        expect(audit).toEqual([{ action: "grocery.add_item", via: "mcp" }]);
+  return { clientId, accessToken };
+};
+
+const callMcp = (baseURL: string, accessToken: string, body: unknown): Promise<Response> =>
+  fetch(`${baseURL}/mcp`, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      accept: "application/json, text/event-stream",
+      authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify(body),
+  });
+
+describe("MCP over OAuth (end-to-end)", () => {
+  test("Claude-style DCR + PKCE + consent + token grants access to grocery tools", async () => {
+    await withMcpServer(async ({ baseURL, cookie, userId, db }) => {
+      const { accessToken } = await runClaudeOAuthFlow(baseURL, cookie);
+
+      const claims = jwtClaims(accessToken);
+      expect(claims.sub).toBe(userId);
+      expect(claims.iss).toBe(`${baseURL}/api/auth`);
+      expect(Array.isArray(claims.aud) ? claims.aud : []).toContain(`${baseURL}/mcp`);
+
+      const unauthorized = await fetch(`${baseURL}/mcp`, {
+        method: "POST",
+        headers: { "content-type": "application/json", accept: "application/json" },
+        body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "tools/list" }),
       });
-    } finally {
-      await server.stop(true);
-    }
+      expect(unauthorized.status).toBe(401);
+
+      const call = await callMcp(baseURL, accessToken, {
+        jsonrpc: "2.0",
+        id: 2,
+        method: "tools/call",
+        params: { name: "grocery.add_item", arguments: { name: "Milk via Claude" } },
+      });
+      expect(call.status).toBe(200);
+      const payload = dataPayload(await call.text());
+      expect(JSON.stringify(payload)).toContain("Milk via Claude");
+
+      const items = db.$client.query("SELECT name FROM grocery_items").all();
+      expect(items).toEqual([{ name: "Milk via Claude" }]);
+      const audit = db.$client.query("SELECT action, via FROM audit_log").all();
+      expect(audit).toEqual([{ action: "grocery.add_item", via: "mcp" }]);
+    });
+  });
+
+  test("revoking an assistant removes the consent but the live JWT survives its TTL window", async () => {
+    await withMcpServer(async ({ baseURL, cookie }) => {
+      const { accessToken } = await runClaudeOAuthFlow(baseURL, cookie);
+
+      const before = await callMcp(baseURL, accessToken, {
+        jsonrpc: "2.0",
+        id: 1,
+        method: "tools/list",
+      });
+      expect(before.status).toBe(200);
+
+      const list = await fetch(`${baseURL}/api/me/assistants`, { headers: { cookie } });
+      expect(list.status).toBe(200);
+      const consentId = firstConsentId(await list.json());
+
+      const revoke = await fetch(`${baseURL}/api/me/assistants/${consentId}/revoke`, {
+        method: "POST",
+        headers: { cookie },
+      });
+      expect(revoke.status).toBe(200);
+      expect(await revoke.json()).toEqual({ id: consentId });
+
+      const afterList = await fetch(`${baseURL}/api/me/assistants`, { headers: { cookie } });
+      expect(await afterList.json()).toEqual({ assistants: [] });
+
+      const afterRevoke = await callMcp(baseURL, accessToken, {
+        jsonrpc: "2.0",
+        id: 2,
+        method: "tools/list",
+      });
+      expect(afterRevoke.status).toBe(200);
+    });
   });
 });

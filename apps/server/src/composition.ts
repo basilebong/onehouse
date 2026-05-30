@@ -1,6 +1,12 @@
 import type { CleanupScheduler, GroceryService } from "@onehouse/app-grocery/server";
 import { createGroceryRoutes } from "@onehouse/app-grocery/server";
-import { type AuditRecorder, type Auth, createRequireSession } from "@onehouse/core/server";
+import {
+  type AssistantsService,
+  type AuditRecorder,
+  type Auth,
+  createAssistantsRoutes,
+  createRequireSession,
+} from "@onehouse/core/server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
@@ -16,6 +22,9 @@ export type ComposeOptions = {
   jwksOrigin: string;
   allowedHosts: readonly string[];
   audit: AuditRecorder;
+  assistants: {
+    service: AssistantsService;
+  };
   grocery: {
     service: GroceryService;
     cleanup: CleanupScheduler;
@@ -28,6 +37,7 @@ export const createApp = ({
   jwksOrigin,
   allowedHosts,
   audit,
+  assistants,
   grocery,
 }: ComposeOptions) =>
   new Hono()
@@ -49,6 +59,7 @@ export const createApp = ({
     )
     .use("/api/*", createRequireSession(auth))
     .get("/api/me", (c) => c.json({ user: c.get("user") }))
+    .route("/api/me/assistants", createAssistantsRoutes({ service: assistants.service, audit }))
     .route("/api/grocery", createGroceryRoutes(grocery))
     .onError((err, c) => {
       if (isValidationError(err)) {

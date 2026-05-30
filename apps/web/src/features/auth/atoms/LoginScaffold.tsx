@@ -12,15 +12,13 @@ export const LoginScaffold = ({
   footnote = true,
 }: LoginScaffoldProps): React.ReactElement => (
   <div className="flex flex-1 flex-col px-6 pt-24 pb-10">
-    <div className="flex flex-col items-start">
+    <div className="flex max-w-[17rem] flex-col items-start">
       <Wordmark />
-      <h1 className="mt-10 font-semibold text-[28px] text-slate-900 leading-[1.15] tracking-tight">
-        The family
-        <br />
-        home screen.
+      <h1 className="mt-10 text-balance font-semibold text-[30px] text-slate-900 leading-[1.12] tracking-[-0.02em]">
+        The family home screen.
       </h1>
-      <p className="mt-3 max-w-[280px] text-[15px] text-slate-500 leading-relaxed">
-        One quiet place for the small things you share — groceries, chores, the calendar.
+      <p className="mt-3.5 text-pretty text-[15px] text-slate-500 leading-relaxed">
+        One quiet place for the small things you share.
       </p>
     </div>
 

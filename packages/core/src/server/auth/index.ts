@@ -26,6 +26,12 @@ export const createAuth = (opts: CreateAuthOptions) => {
       allowDynamicClientRegistration: true,
       allowUnauthenticatedClientRegistration: true,
       requirePKCE: true,
+      // MCP access tokens are stateless JWTs verified locally against our JWKS,
+      // so Better Auth cannot revoke them server-side before they expire. This
+      // short TTL bounds the gap between "Revoke" and the token losing access;
+      // durable revocation lives in AssistantsService.revoke (deletes consent +
+      // refresh token, so no new token can be minted).
+      accessTokenExpiresIn: 60 * 15,
       silenceWarnings: { oauthAuthServerConfig: true },
     }),
   ];

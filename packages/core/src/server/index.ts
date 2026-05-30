@@ -1,4 +1,11 @@
 export {
+  type AssistantError,
+  type AssistantsRoutesDeps,
+  type AssistantsService,
+  createAssistantsRoutes,
+  createAssistantsService,
+} from "./assistants/index.ts";
+export {
   type AuditEntry,
   type AuditRecorder,
   type AuditVia,
