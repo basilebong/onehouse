@@ -3,6 +3,7 @@ import {
   type Ingredient,
   type Recipe,
   RecipeIdSchema,
+  defaultGrocerySelection,
   formatMinutes,
 } from "@onehouse/app-recipes/shared";
 import {
@@ -25,7 +26,7 @@ import {
 } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { type ReactElement, useState } from "react";
+import { type ReactElement, useEffect, useState } from "react";
 import { toast } from "sonner";
 import * as v from "valibot";
 
@@ -81,11 +82,10 @@ const AddToGroceryDrawer = ({
   const qc = useQueryClient();
   const [selected, setSelected] = useState<ReadonlyMap<string, boolean>>(() => new Map());
 
-  const seed = (): void => {
-    const next = new Map<string, boolean>();
-    for (const ingredient of recipe.ingredients) next.set(ingredient.name, !ingredient.haveAtHome);
-    setSelected(next);
-  };
+  useEffect(() => {
+    if (!open) return;
+    setSelected(new Map(Object.entries(defaultGrocerySelection(recipe.ingredients))));
+  }, [open, recipe.ingredients]);
 
   const toggle = (name: string): void => {
     setSelected((prev) => {
@@ -114,7 +114,6 @@ const AddToGroceryDrawer = ({
     <Drawer
       open={open}
       onOpenChange={(next) => {
-        if (next) seed();
         if (!next && add.isPending) return;
         onOpenChange(next);
       }}

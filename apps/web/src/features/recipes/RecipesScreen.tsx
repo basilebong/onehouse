@@ -121,18 +121,24 @@ export const RecipesScreen = (): ReactElement => {
         </div>
       ) : (
         <div className="flex-1 overflow-y-auto bg-white px-5">
-          <div className="divide-y divide-slate-100">
-            {visible.map((recipe) => (
-              <Link
-                key={recipe.id}
-                to="/recipes/$recipeId"
-                params={{ recipeId: recipe.id }}
-                className="block rounded-xl transition active:bg-slate-50"
-              >
-                <RecipeCard recipe={recipe} />
-              </Link>
-            ))}
-          </div>
+          {visible.length === 0 ? (
+            <p className="pt-10 text-center text-slate-500 text-sm">
+              No {filter === "all" ? "" : `${filter.toLowerCase()} `}recipes yet.
+            </p>
+          ) : (
+            <div className="divide-y divide-slate-100">
+              {visible.map((recipe) => (
+                <Link
+                  key={recipe.id}
+                  to="/recipes/$recipeId"
+                  params={{ recipeId: recipe.id }}
+                  className="block rounded-xl transition active:bg-slate-50"
+                >
+                  <RecipeCard recipe={recipe} />
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       )}
 

@@ -16,7 +16,11 @@ export const useTimers = (): UseTimers => {
 
   useEffect(() => {
     if (!hasActiveTimer(timers, Date.now())) return undefined;
-    const interval = setInterval(() => setNow(Date.now()), TICK_MS);
+    const interval = setInterval(() => {
+      const at = Date.now();
+      setNow(at);
+      if (!hasActiveTimer(timers, at)) clearInterval(interval);
+    }, TICK_MS);
     return () => clearInterval(interval);
   }, [timers]);
 

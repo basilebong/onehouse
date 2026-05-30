@@ -30,7 +30,6 @@ const RecipeSchema = v.object({
 
 const ListResponseSchema = v.object({ recipes: v.array(SummarySchema) });
 const RecipeEnvelopeSchema = v.object({ recipe: RecipeSchema });
-const DeleteResponseSchema = v.object({ id: RecipeIdSchema });
 
 const parseJson = async <T>(res: Response, schema: v.GenericSchema<unknown, T>): Promise<T> => {
   if (!res.ok) {
@@ -62,14 +61,4 @@ export const createRecipe = async (input: CreateRecipeInput): Promise<Recipe> =>
   });
   const body = await parseJson(res, RecipeEnvelopeSchema);
   return body.recipe;
-};
-
-export const deleteRecipe = async (id: RecipeId): Promise<void> => {
-  const res = await fetch(`/api/recipes/${encodeURIComponent(id)}`, {
-    method: "DELETE",
-    credentials: "include",
-  });
-  if (res.status === 404) return;
-  const body = await parseJson(res, DeleteResponseSchema);
-  if (body.id !== id) throw new Error("delete: id mismatch");
 };

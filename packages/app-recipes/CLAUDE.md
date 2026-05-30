@@ -1,15 +1,21 @@
 # app-recipes
 
-Owns the recipes feature. Ships TWO subpaths today:
+Owns the recipes feature end-to-end. Exports FOUR subpaths (mirrors
+`app-grocery`):
 
 - `./shared` — isomorphic; branded `RecipeId`, recipe/ingredient/step types,
-  category, the timer state machine, and duration formatting.
+  the `Starter|Main|Dessert|Other` category, the timer state machine, duration
+  formatting, the `defaultGrocerySelection` helper, and Valibot create-recipe
+  validation.
+- `./server` — Drizzle `recipes` schema (ingredients/steps stored as
+  validated JSON), a service returning `Result`, and Hono routes.
+- `./tools` — MCP `recipes.list` / `get` / `add` / `remove`.
 - `./ui` — React components (recipe detail pieces, ingredient rows, the
   tappable `TimeChip` + `useTimers` hook, the floating timer stack, browse
   cards).
 
-`./server` and `./tools` are not built yet — recipe data is seeded in the web
-app for v0. When persistence lands, add them here mirroring `app-grocery`.
+Recipes are real persisted rows — authored via the web create form or MCP, not
+seeded.
 
 ## Local rules
 
