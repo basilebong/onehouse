@@ -10,7 +10,7 @@ Owns the recipes feature end-to-end. Exports FOUR subpaths (mirrors
 - `./server` — Drizzle `recipes` schema (ingredients/steps stored as validated
   JSON, optional `image` data URL in its own column), a service returning
   `Result`, and Hono routes.
-- `./tools` — MCP `recipes.list` / `get` / `add` / `remove`.
+- `./tools` — MCP `recipes.list` / `get` / `add` / `update` / `remove`.
 - `./ui` — React components (recipe detail pieces, ingredient rows, the tappable
   `TimeChip` for the steps list + the big `CookTimeButton` for focused cook mode,
   the `useTimers` hook, the floating timer stack, the `PhotoInput` uploader
