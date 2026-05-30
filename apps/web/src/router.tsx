@@ -8,6 +8,7 @@ import { FirstArrivalScreen } from "@/features/auth/FirstArrivalScreen";
 import { RejectedScreen } from "@/features/auth/RejectedScreen";
 import { SignInScreen } from "@/features/auth/SignInScreen";
 import { GroceryScreen } from "@/features/grocery/GroceryScreen";
+import { MeScreen } from "@/features/me/MeScreen";
 
 export const rootRoute = createRootRoute({
   component: Outlet,
@@ -63,6 +64,16 @@ export const groceryRoute = createRoute({
   ),
 });
 
+export const meRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/me",
+  component: () => (
+    <AuthGuard>
+      <MeScreen />
+    </AuthGuard>
+  ),
+});
+
 const consentSearchSchema = v.object({
   client_id: v.optional(v.string()),
   scope: v.optional(v.string()),
@@ -83,6 +94,7 @@ const routeTree = rootRoute.addChildren([
   rejectedRoute,
   welcomeRoute,
   groceryRoute,
+  meRoute,
   consentRoute,
 ]);
 

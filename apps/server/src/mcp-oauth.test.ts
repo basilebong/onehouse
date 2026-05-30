@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import type { CleanupScheduler } from "@onehouse/app-grocery/server";
 import { createGroceryService } from "@onehouse/app-grocery/server";
-import { createAuditRecorder } from "@onehouse/core/server";
+import { createAssistantsService, createAuditRecorder } from "@onehouse/core/server";
 import { withTestAuth } from "@onehouse/core/server/test";
 import { type AppType, createApp } from "./composition.ts";
 
@@ -68,6 +68,7 @@ describe("MCP over OAuth (end-to-end)", () => {
           jwksOrigin: baseURL,
           allowedHosts: [`localhost:${server.port}`],
           audit: createAuditRecorder(db),
+          assistants: { service: createAssistantsService(db) },
           grocery: { service: createGroceryService(db), cleanup: noopCleanup },
         });
 
