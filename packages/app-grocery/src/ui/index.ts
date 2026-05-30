@@ -1,6 +1,5 @@
 export { AddItemForm } from "./AddItemForm.tsx";
 export { Avatar } from "./Avatar.tsx";
-export { BottomNav, type NavTab } from "./BottomNav.tsx";
 export { type AvatarPalette, paletteFor } from "./colors.ts";
 export { EditItemForm } from "./EditItemForm.tsx";
 export { EmptyState } from "./EmptyState.tsx";

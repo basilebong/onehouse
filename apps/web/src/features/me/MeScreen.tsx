@@ -1,11 +1,10 @@
-import { BottomNav } from "@onehouse/app-grocery/ui";
 import type { ConnectedAssistant, OAuthConsentId } from "@onehouse/core/shared";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
 import { type ReactElement, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
-import { useTabNav } from "@/components/useTabNav";
+import { BottomNav } from "@/components/BottomNav";
 import { signOut, useSession } from "@/lib/auth-client";
 import { fetchAssistants, revokeAssistant } from "@/lib/me-api";
 import { AssistantsSection } from "./atoms/AssistantsSection";
@@ -31,7 +30,6 @@ const deriveIdentity = (
 
 export const MeScreen = (): ReactElement => {
   const router = useRouter();
-  const tabNav = useTabNav();
   const qc = useQueryClient();
   const session = useSession();
   const identity = deriveIdentity(session.data?.user);
@@ -141,7 +139,7 @@ export const MeScreen = (): ReactElement => {
       <div className="shrink-0 border-slate-100 border-t bg-slate-50 px-5 pt-2 pb-[max(env(safe-area-inset-bottom),1rem)]">
         <SignOutButton loading={signingOut} onClick={() => void handleSignOut()} />
       </div>
-      <BottomNav active="me" onChange={tabNav} />
+      <BottomNav active="apps" />
     </main>
   );
 };

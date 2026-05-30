@@ -9,7 +9,6 @@ import type {
 import { isPurchased, parseGroceryItemId, transition } from "@onehouse/app-grocery/shared";
 import {
   AddItemForm,
-  BottomNav,
   EditItemForm,
   EmptyState,
   Fab,
@@ -26,8 +25,8 @@ import { type ReactElement, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { match } from "ts-pattern";
 
+import { BottomNav } from "@/components/BottomNav";
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from "@/components/ui/drawer";
-import { useTabNav } from "@/components/useTabNav";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { useSession } from "@/lib/auth-client";
 import { createItem, deleteItem, fetchItems, togglePurchased, updateItem } from "@/lib/grocery-api";
@@ -58,7 +57,6 @@ const DRAWER_NONE: DrawerState = { kind: "none" };
 export const GroceryScreen = (): ReactElement => {
   const qc = useQueryClient();
   const online = useOnlineStatus();
-  const tabNav = useTabNav();
   const identity = useIdentity();
   const [drawer, setDrawer] = useState<DrawerState>(DRAWER_NONE);
   const [pending, setPending] = useState<ReadonlyMap<GroceryItemId, ItemSyncState>>(
@@ -324,7 +322,7 @@ export const GroceryScreen = (): ReactElement => {
     return (
       <main className="flex min-h-dvh flex-col bg-slate-50">
         <ListSkeleton />
-        <BottomNav active="grocery" onChange={tabNav} />
+        <BottomNav active="grocery" />
       </main>
     );
   }
@@ -346,7 +344,7 @@ export const GroceryScreen = (): ReactElement => {
             Try again
           </button>
         </div>
-        <BottomNav active="grocery" onChange={tabNav} />
+        <BottomNav active="grocery" />
       </main>
     );
   }
@@ -377,7 +375,7 @@ export const GroceryScreen = (): ReactElement => {
         />
       )}
       <Fab onClick={() => setDrawer({ kind: "add" })} />
-      <BottomNav active="grocery" onChange={tabNav} />
+      <BottomNav active="grocery" />
 
       <Drawer
         open={drawer.kind === "add"}

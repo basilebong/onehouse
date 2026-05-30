@@ -2,6 +2,7 @@ import { Outlet, createRootRoute, createRoute, createRouter } from "@tanstack/re
 import * as v from "valibot";
 
 import { AuthGuard } from "@/components/AuthGuard";
+import { AppsScreen } from "@/features/apps/AppsScreen";
 import { CheckingScreen } from "@/features/auth/CheckingScreen";
 import { ConsentScreen } from "@/features/auth/ConsentScreen";
 import { FirstArrivalScreen } from "@/features/auth/FirstArrivalScreen";
@@ -9,6 +10,7 @@ import { RejectedScreen } from "@/features/auth/RejectedScreen";
 import { SignInScreen } from "@/features/auth/SignInScreen";
 import { GroceryScreen } from "@/features/grocery/GroceryScreen";
 import { MeScreen } from "@/features/me/MeScreen";
+import { RecipesScreen } from "@/features/recipes/RecipesScreen";
 
 export const rootRoute = createRootRoute({
   component: Outlet,
@@ -64,6 +66,26 @@ export const groceryRoute = createRoute({
   ),
 });
 
+export const recipesRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/recipes",
+  component: () => (
+    <AuthGuard>
+      <RecipesScreen />
+    </AuthGuard>
+  ),
+});
+
+export const appsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/apps",
+  component: () => (
+    <AuthGuard>
+      <AppsScreen />
+    </AuthGuard>
+  ),
+});
+
 export const meRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/me",
@@ -94,6 +116,8 @@ const routeTree = rootRoute.addChildren([
   rejectedRoute,
   welcomeRoute,
   groceryRoute,
+  recipesRoute,
+  appsRoute,
   meRoute,
   consentRoute,
 ]);
