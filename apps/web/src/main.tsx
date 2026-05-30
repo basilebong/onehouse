@@ -1,3 +1,4 @@
+import { GlobalTimers } from "@onehouse/app-recipes/ui";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { RouterProvider } from "@tanstack/react-router";
 import { ThemeProvider } from "next-themes";
@@ -18,6 +19,7 @@ createRoot(mount).render(
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
       <QueryClientProvider client={queryClient}>
         <RouterProvider router={router} />
+        <GlobalTimers />
         <Toaster richColors closeButton />
       </QueryClientProvider>
     </ThemeProvider>

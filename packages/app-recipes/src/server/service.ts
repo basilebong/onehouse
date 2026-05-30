@@ -18,6 +18,7 @@ export type RecipeService = {
   list(): Promise<RecipeSummary[]>;
   get(id: RecipeId): Promise<Result<Recipe, RecipeError>>;
   create(input: CreateRecipeInput, by: UserId): Promise<Result<Recipe, RecipeError>>;
+  update(id: RecipeId, input: CreateRecipeInput): Promise<Result<Recipe, RecipeError>>;
   remove(id: RecipeId): Promise<Result<{ id: RecipeId }, RecipeError>>;
 };
 
@@ -68,6 +69,31 @@ export const createRecipeService = (db: Db): RecipeService => ({
     const row = inserted[0];
     if (row === undefined) return err({ kind: "not_found", id });
     const authorRows = await db.select(authorColumns).from(users).where(eq(users.id, by)).limit(1);
+    return ok(rowToRecipe(row, authorRows[0] ?? null));
+  },
+
+  async update(id, input) {
+    const updated = await db
+      .update(recipes)
+      .set({
+        title: input.title,
+        description: input.description,
+        image: input.image ?? null,
+        category: input.category,
+        minutes: input.minutes,
+        serves: input.serves,
+        ingredientsJson: serializeIngredients(input.ingredients),
+        stepsJson: serializeSteps(input.steps),
+      })
+      .where(eq(recipes.id, id))
+      .returning();
+    const row = updated[0];
+    if (row === undefined) return err({ kind: "not_found", id });
+    const authorRows = await db
+      .select(authorColumns)
+      .from(users)
+      .where(eq(users.id, row.createdByUserId))
+      .limit(1);
     return ok(rowToRecipe(row, authorRows[0] ?? null));
   },
 

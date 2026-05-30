@@ -64,6 +64,17 @@ export const createRecipe = async (input: CreateRecipeInput): Promise<Recipe> =>
   return body.recipe;
 };
 
+export const updateRecipe = async (id: RecipeId, input: CreateRecipeInput): Promise<Recipe> => {
+  const res = await fetch(`/api/recipes/${encodeURIComponent(id)}`, {
+    method: "PUT",
+    credentials: "include",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(input),
+  });
+  const body = await parseJson(res, RecipeEnvelopeSchema);
+  return body.recipe;
+};
+
 export const deleteRecipe = async (id: RecipeId): Promise<void> => {
   const res = await fetch(`/api/recipes/${encodeURIComponent(id)}`, {
     method: "DELETE",

@@ -122,6 +122,7 @@ describe("recipe routes", () => {
           { method: "GET", path: "/api/recipes" },
           { method: "GET", path: "/api/recipes/some-id" },
           { method: "POST", path: "/api/recipes", body: sampleRecipe() },
+          { method: "PUT", path: "/api/recipes/some-id", body: sampleRecipe() },
           { method: "DELETE", path: "/api/recipes/some-id" },
         ];
         for (const probe of probes) {
@@ -243,6 +244,54 @@ describe("recipe routes", () => {
       await withRecipes(async ({ app, cookie }) => {
         const res = await app.request("/api/recipes/does-not-exist", { headers: { cookie } });
         expect(res.status).toBe(404);
+      });
+    });
+  });
+
+  describe("PUT /:id", () => {
+    test("updates an existing recipe", async () => {
+      await withRecipes(async ({ app, cookie }) => {
+        const created = await postRecipe(app, cookie, sampleRecipe());
+        const edited = sampleRecipe({
+          title: "Rigatoni, revised",
+          serves: 6,
+          ingredients: [{ name: "Rigatoni", quantity: "500 g", haveAtHome: false }],
+        });
+        const res = await app.request(`/api/recipes/${created.id}`, {
+          method: "PUT",
+          headers: { cookie, "content-type": "application/json" },
+          body: JSON.stringify(edited),
+        });
+        expect(res.status).toBe(200);
+        const body = await parseJsonBody(res, RecipeEnvelopeSchema);
+        expect(body.recipe.id).toBe(created.id);
+        expect(body.recipe.title).toBe("Rigatoni, revised");
+        expect(body.recipe.serves).toBe(6);
+        expect(body.recipe.ingredients).toHaveLength(1);
+        expect(body.recipe.cook).toEqual({ name: "Basile", initial: "B" });
+      });
+    });
+
+    test("returns 404 for an unknown recipe", async () => {
+      await withRecipes(async ({ app, cookie }) => {
+        const res = await app.request("/api/recipes/does-not-exist", {
+          method: "PUT",
+          headers: { cookie, "content-type": "application/json" },
+          body: JSON.stringify(sampleRecipe()),
+        });
+        expect(res.status).toBe(404);
+      });
+    });
+
+    test("rejects an invalid body with 400", async () => {
+      await withRecipes(async ({ app, cookie }) => {
+        const created = await postRecipe(app, cookie, sampleRecipe());
+        const res = await app.request(`/api/recipes/${created.id}`, {
+          method: "PUT",
+          headers: { cookie, "content-type": "application/json" },
+          body: JSON.stringify(sampleRecipe({ title: "" })),
+        });
+        expect(res.status).toBe(400);
       });
     });
   });

@@ -11,7 +11,6 @@ import {
 import {
   Avatar,
   CookTimeButton,
-  FloatingTimers,
   IngredientRow,
   IngredientToggle,
   MetaChip,
@@ -30,6 +29,7 @@ import {
   EyeIcon,
   FilePdfIcon,
   ForkKnifeIcon,
+  PencilSimpleIcon,
   TrashIcon,
   WarningCircleIcon,
   XIcon,
@@ -273,14 +273,6 @@ const CookView = ({
         </div>
       </div>
 
-      <FloatingTimers
-        timers={timers}
-        now={now}
-        accent={ACCENT}
-        onCancel={cancel}
-        bottomClassName="bottom-[calc(env(safe-area-inset-bottom)+6.25rem)]"
-      />
-
       <div className="flex shrink-0 items-center gap-3 px-5 pt-2 pb-[max(env(safe-area-inset-bottom),1.25rem)]">
         <button
           type="button"
@@ -367,13 +359,6 @@ const MethodView = ({
         ))}
       </div>
     </div>
-    <FloatingTimers
-      timers={timers}
-      now={now}
-      accent={ACCENT}
-      onCancel={cancel}
-      bottomClassName="bottom-[calc(env(safe-area-inset-bottom)+9.5rem)]"
-    />
     <div className="shrink-0 border-slate-100 border-t bg-white px-5 pt-2.5 pb-3">
       <button
         type="button"
@@ -424,14 +409,32 @@ const ReadView = ({
           >
             <ArrowLeftIcon size={18} weight="bold" />
           </Link>
-          <button
-            type="button"
-            onClick={onExport}
-            aria-label="Export as PDF"
-            className="grid size-11 place-items-center rounded-full text-slate-600 transition active:bg-slate-100"
-          >
-            <FilePdfIcon size={18} weight="bold" />
-          </button>
+          <div className="flex items-center">
+            <Link
+              to="/recipes/$recipeId/edit"
+              params={{ recipeId: recipe.id }}
+              aria-label="Edit recipe"
+              className="grid size-11 place-items-center rounded-full text-slate-600 transition active:bg-slate-100"
+            >
+              <PencilSimpleIcon size={18} weight="bold" />
+            </Link>
+            <button
+              type="button"
+              onClick={onExport}
+              aria-label="Export as PDF"
+              className="grid size-11 place-items-center rounded-full text-slate-600 transition active:bg-slate-100"
+            >
+              <FilePdfIcon size={18} weight="bold" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setConfirmDelete(true)}
+              aria-label="Delete recipe"
+              className="grid size-11 place-items-center rounded-full text-slate-600 transition active:bg-rose-50 active:text-rose-600"
+            >
+              <TrashIcon size={18} weight="bold" />
+            </button>
+          </div>
         </div>
         <div className="px-5 pb-1">
           <Hero recipe={recipe} className="h-40 w-full rounded-2xl" />
@@ -458,7 +461,7 @@ const ReadView = ({
           </div>
         </div>
 
-        <div className="px-5 pt-5">
+        <div className="px-5 pt-5 pb-6">
           <div className="flex items-center justify-between">
             <h2 className="font-semibold text-[11px] text-slate-400 uppercase tracking-[0.12em]">
               Ingredients · {recipe.ingredients.length}
@@ -481,17 +484,6 @@ const ReadView = ({
               />
             ))}
           </div>
-        </div>
-
-        <div className="px-5 pt-4 pb-6">
-          <button
-            type="button"
-            onClick={() => setConfirmDelete(true)}
-            className="flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl font-medium text-[14px] text-rose-600 transition active:bg-rose-50"
-          >
-            <TrashIcon size={16} weight="bold" />
-            Delete recipe
-          </button>
         </div>
       </div>
 

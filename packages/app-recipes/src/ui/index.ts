@@ -2,7 +2,7 @@ export { Avatar } from "./Avatar.tsx";
 export { type AvatarPalette, paletteFor } from "./colors.ts";
 export { CookTimeButton } from "./CookTimeButton.tsx";
 export { FilterChip } from "./FilterChip.tsx";
-export { FloatingTimers } from "./FloatingTimers.tsx";
+export { GlobalTimers } from "./GlobalTimers.tsx";
 export { IngredientRow, IngredientToggle } from "./IngredientRow.tsx";
 export { MetaChip } from "./MetaChip.tsx";
 export { exportRecipePdf } from "./pdf.ts";

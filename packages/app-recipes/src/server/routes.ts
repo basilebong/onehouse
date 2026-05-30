@@ -72,6 +72,18 @@ export const createRecipeRoutes = (deps: RecipeDeps) =>
       }
       return c.json({ recipe: result.value }, 201);
     })
+    .put("/:id", async (c) => {
+      const id = tryParseRecipeId(c.req.param("id"));
+      if (id === null) return c.json(invalidInput("Invalid recipe id"), 400);
+      const parsed = await parseBody(c.req.raw, CreateRecipeInputSchema);
+      if (!parsed.ok) return c.json(invalidInput(), 400);
+      const result = await deps.service.update(id, parsed.value);
+      if (result.kind === "err") {
+        const e = handleError(result.error);
+        return c.json(e.body, e.status);
+      }
+      return c.json({ recipe: result.value });
+    })
     .delete("/:id", async (c) => {
       const id = tryParseRecipeId(c.req.param("id"));
       if (id === null) return c.json(invalidInput("Invalid recipe id"), 400);
