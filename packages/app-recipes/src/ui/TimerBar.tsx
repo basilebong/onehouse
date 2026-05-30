@@ -1,27 +1,19 @@
 import { BellRingingIcon, CheckIcon, TimerIcon, XIcon } from "@phosphor-icons/react";
 import type { ReactElement } from "react";
 import { match } from "ts-pattern";
-import { type TimerMap, formatClock, viewTimer } from "../shared/index.ts";
+import { formatClock, viewTimer } from "../shared/index.ts";
 import { cn } from "./cn.ts";
+import { useTimers } from "./useTimers.ts";
 
-type FloatingTimersProps = {
-  timers: TimerMap;
-  now: number;
-  accent: string;
-  onCancel: (id: string) => void;
-};
+const ACCENT = "#ff6b35";
 
-export const FloatingTimers = ({
-  timers,
-  now,
-  accent,
-  onCancel,
-}: FloatingTimersProps): ReactElement | null => {
+export const TimerBar = (): ReactElement | null => {
+  const { timers, now, cancel } = useTimers();
   const entries = Object.entries(timers);
   if (entries.length === 0) return null;
 
   return (
-    <div className="fixed inset-x-3 bottom-[calc(env(safe-area-inset-bottom)+5.5rem)] z-40 mx-auto flex max-w-md flex-col gap-2">
+    <div className="shrink-0 space-y-2 border-slate-100 border-t bg-slate-50 px-3 py-2">
       {entries.map(([id, timer]) => {
         const display = match(viewTimer(timer, now))
           .with({ kind: "idle" }, () => ({ done: false, fraction: 0, clock: formatClock(0) }))
@@ -43,21 +35,21 @@ export const FloatingTimers = ({
           >
             <span
               className="absolute inset-y-0 left-0 opacity-30"
-              style={{ width: `${display.fraction * 100}%`, background: accent }}
+              style={{ width: `${display.fraction * 100}%`, background: ACCENT }}
             />
             {display.done ? (
               <BellRingingIcon
                 size={18}
                 weight="fill"
                 className="relative"
-                style={{ color: accent }}
+                style={{ color: ACCENT }}
               />
             ) : (
               <TimerIcon
                 size={18}
                 weight="fill"
                 className="relative animate-pulse"
-                style={{ color: accent }}
+                style={{ color: ACCENT }}
               />
             )}
             <div className="relative min-w-0 flex-1">
@@ -69,7 +61,7 @@ export const FloatingTimers = ({
             <span className="relative font-semibold text-[17px] tabular-nums">{display.clock}</span>
             <button
               type="button"
-              onClick={() => onCancel(id)}
+              onClick={() => cancel(id)}
               aria-label={`Stop ${timer.label} timer`}
               className="relative grid size-7 place-items-center rounded-full bg-white/10 transition active:bg-white/20"
             >

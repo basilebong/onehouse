@@ -70,6 +70,7 @@ describe("recipe MCP tools", () => {
         "recipes.get",
         "recipes.list",
         "recipes.remove",
+        "recipes.update",
       ]);
     });
   });
@@ -106,6 +107,33 @@ describe("recipe MCP tools", () => {
       expect(mains.structuredContent).toMatchObject({
         recipes: [{ title: "Tomato Butter Rigatoni" }],
       });
+    });
+  });
+
+  test("update replaces the recipe", async () => {
+    await withTestAuth({ allowedEmails: TEST_EMAIL }, async ({ auth, db }) => {
+      const client = await connect(db, await seedUser(auth));
+      const added = await client.callTool({ name: "recipes.add", arguments: ADD_ARGS });
+      const recipeId = recipeIdOf(added);
+      const updated = await client.callTool({
+        name: "recipes.update",
+        arguments: { ...ADD_ARGS, recipeId, title: "Rigatoni v2", serves: 6 },
+      });
+      expect(updated.isError).toBeFalsy();
+      expect(updated.structuredContent).toMatchObject({
+        recipe: { id: recipeId, title: "Rigatoni v2", serves: 6 },
+      });
+    });
+  });
+
+  test("update on a missing recipe returns an MCP error", async () => {
+    await withTestAuth({ allowedEmails: TEST_EMAIL }, async ({ auth, db }) => {
+      const client = await connect(db, await seedUser(auth));
+      const result = await client.callTool({
+        name: "recipes.update",
+        arguments: { ...ADD_ARGS, recipeId: "does-not-exist" },
+      });
+      expect(result.isError).toBe(true);
     });
   });
 

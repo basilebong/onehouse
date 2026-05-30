@@ -183,6 +183,65 @@ export const registerRecipeTools = (server: McpServer, deps: RecipeToolDeps): vo
   );
 
   server.registerTool(
+    "recipes.update",
+    {
+      title: "Update a recipe",
+      description:
+        "Replace an existing recipe's details — title, ingredients, and method — by id. The photo is preserved.",
+      inputSchema: {
+        recipeId: z.string().min(1),
+        title: z.string().trim().min(1).max(120),
+        description: z.string().trim().max(2000).optional(),
+        category: z.enum(["Starter", "Main", "Dessert", "Other"]),
+        minutes: z.number().int().min(1).max(1440),
+        serves: z.number().int().min(1).max(50),
+        ingredients: z.array(ingredientShape).min(1),
+        steps: z.array(stepShape).min(1),
+      },
+    },
+    async ({ recipeId, title, description, category, minutes, serves, ingredients, steps }) => {
+      const id = parseRecipeId(recipeId);
+      const existing = await service.get(id);
+      if (existing.kind === "err") return errorResult(existing.error);
+      const input: CreateRecipeInput = {
+        title,
+        description: description ?? "",
+        category,
+        minutes,
+        serves,
+        ...(existing.value.image !== null ? { image: existing.value.image } : {}),
+        ingredients: ingredients.map((i) => ({
+          name: i.name,
+          quantity: i.quantity,
+          haveAtHome: i.haveAtHome ?? false,
+        })),
+        steps: steps.map((s) => ({
+          title: s.title,
+          body: s.body,
+          concurrent: s.concurrent ?? false,
+          uses: (s.uses ?? []).map((u) => ({ name: u.name, quantity: u.quantity })),
+          timers: (s.timers ?? []).map((t) => ({ id: t.id, minutes: t.minutes, label: t.label })),
+        })),
+      };
+      const result = await service.update(id, input);
+      if (result.kind === "err") return errorResult(result.error);
+      await safely(
+        "audit",
+        audit.record({
+          userId: actor,
+          action: "recipes.update",
+          via: "mcp",
+          metadata: { recipeId: result.value.id },
+        }),
+      );
+      return {
+        content: [{ type: "text" as const, text: `Updated "${result.value.title}".` }],
+        structuredContent: { recipe: result.value },
+      };
+    },
+  );
+
+  server.registerTool(
     "recipes.remove",
     {
       title: "Remove a recipe",

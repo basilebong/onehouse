@@ -3,7 +3,7 @@ import {
   RECIPE_CATEGORIES,
   type RecipeCategory,
 } from "@onehouse/app-recipes/shared";
-import { PhotoInput } from "@onehouse/app-recipes/ui";
+import { PhotoInput, TimerBar } from "@onehouse/app-recipes/ui";
 import { MinusIcon, PlusIcon, TimerIcon, XIcon } from "@phosphor-icons/react";
 import { type ReactElement, type ReactNode, useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -495,6 +495,8 @@ export const RecipeForm = ({
           </div>
         )}
       </div>
+
+      <TimerBar />
 
       <div className="shrink-0 border-slate-100 border-t bg-white px-5 pt-2.5 pb-[max(env(safe-area-inset-bottom),0.75rem)]">
         <button

@@ -1,3 +1,4 @@
+import { TimerBar } from "@onehouse/app-recipes/ui";
 import { BasketIcon, CookingPotIcon, type Icon, SquaresFourIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
 import type { ReactElement } from "react";
@@ -15,26 +16,26 @@ const ENTRIES: readonly NavEntry[] = [
 ];
 
 export const BottomNav = ({ active }: { active: NavTab }): ReactElement => (
-  <nav
-    className="flex h-20 shrink-0 items-stretch border-slate-100 border-t bg-white pb-[env(safe-area-inset-bottom)]"
-    aria-label="Primary"
-  >
-    {ENTRIES.map(({ id, to, icon: Icon, label }) => {
-      const on = id === active;
-      return (
-        <Link
-          key={id}
-          to={to}
-          aria-current={on ? "page" : undefined}
-          className={cn(
-            "flex min-h-11 flex-1 flex-col items-center justify-center gap-0.5",
-            on ? "text-slate-900" : "text-slate-400",
-          )}
-        >
-          <Icon size={22} weight={on ? "fill" : "regular"} />
-          <span className={cn("text-[11px]", on && "font-medium")}>{label}</span>
-        </Link>
-      );
-    })}
-  </nav>
+  <div className="shrink-0 bg-white pb-[env(safe-area-inset-bottom)]">
+    <nav className="flex h-20 items-stretch border-slate-100 border-t" aria-label="Primary">
+      {ENTRIES.map(({ id, to, icon: Icon, label }) => {
+        const on = id === active;
+        return (
+          <Link
+            key={id}
+            to={to}
+            aria-current={on ? "page" : undefined}
+            className={cn(
+              "flex min-h-11 flex-1 flex-col items-center justify-center gap-0.5",
+              on ? "text-slate-900" : "text-slate-400",
+            )}
+          >
+            <Icon size={22} weight={on ? "fill" : "regular"} />
+            <span className={cn("text-[11px]", on && "font-medium")}>{label}</span>
+          </Link>
+        );
+      })}
+    </nav>
+    <TimerBar />
+  </div>
 );

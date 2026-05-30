@@ -16,6 +16,7 @@ import {
   MetaChip,
   PhotoPlaceholder,
   StepCard,
+  TimerBar,
   exportRecipePdf,
   useTimers,
 } from "@onehouse/app-recipes/ui";
@@ -272,6 +273,8 @@ const CookView = ({
           )}
         </div>
       </div>
+
+      <TimerBar />
 
       <div className="flex shrink-0 items-center gap-3 px-5 pt-2 pb-[max(env(safe-area-inset-bottom),1.25rem)]">
         <button
