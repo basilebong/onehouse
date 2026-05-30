@@ -74,6 +74,7 @@ export const rowToRecipe = (row: RecipeRow, author: AuthorRow): Recipe => ({
   id: parseRecipeId(row.id),
   title: row.title,
   description: row.description,
+  image: row.image,
   category: parseCategory(row.category),
   minutes: row.minutes,
   serves: row.serves,

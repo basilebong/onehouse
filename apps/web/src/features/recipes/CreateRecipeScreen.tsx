@@ -3,23 +3,30 @@ import {
   RECIPE_CATEGORIES,
   type RecipeCategory,
 } from "@onehouse/app-recipes/shared";
-import { MinusIcon, PlusIcon, XIcon } from "@phosphor-icons/react";
+import { PhotoInput } from "@onehouse/app-recipes/ui";
+import { MinusIcon, PlusIcon, TimerIcon, XIcon } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { type ReactElement, type ReactNode, useState } from "react";
+import { type ReactElement, type ReactNode, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { cn } from "@/lib/cn";
 import { createRecipe } from "@/lib/recipes-api";
 
+const ACCENT = "#ff6b35";
+
 type IngredientDraft = { id: string; name: string; quantity: string };
-type StepDraft = { id: string; title: string; body: string; minutes: string };
+type TimerDraft = { id: string; minutes: string };
+type StepDraft = { id: string; title: string; body: string; timers: TimerDraft[] };
 
 const newIngredient = (): IngredientDraft => ({ id: crypto.randomUUID(), name: "", quantity: "" });
-const newStep = (): StepDraft => ({ id: crypto.randomUUID(), title: "", body: "", minutes: "" });
+const newStep = (): StepDraft => ({ id: crypto.randomUUID(), title: "", body: "", timers: [] });
+const newTimer = (): TimerDraft => ({ id: crypto.randomUUID(), minutes: "" });
 
 const clamp = (value: number, min: number, max: number): number =>
   Math.min(max, Math.max(min, value));
+
+const onlyDigits = (value: string): string => value.replace(/[^0-9]/g, "");
 
 const Field = ({
   label,
@@ -51,36 +58,78 @@ const Stepper = ({
   value: number;
   suffix?: string;
   onChange: (next: number) => void;
-}): ReactElement => (
-  <div>
-    <span className="font-semibold text-[11px] text-slate-500 uppercase tracking-wider">
-      {label}
-    </span>
-    <div className="mt-1.5 flex min-h-12 items-center justify-between rounded-xl border border-slate-200 bg-white px-3">
-      <span className="font-medium text-[15px] text-slate-900 tabular-nums">
-        {value}
-        {suffix !== undefined && <span className="text-slate-400"> {suffix}</span>}
+}): ReactElement => {
+  const [draft, setDraft] = useState(String(value));
+  useEffect(() => {
+    setDraft(String(value));
+  }, [value]);
+
+  const handleInput = (raw: string): void => {
+    const digits = onlyDigits(raw);
+    setDraft(digits);
+    const parsed = Number.parseInt(digits, 10);
+    if (Number.isFinite(parsed)) onChange(parsed);
+  };
+
+  return (
+    <div>
+      <span className="font-semibold text-[11px] text-slate-500 uppercase tracking-wider">
+        {label}
       </span>
-      <div className="flex items-center gap-1.5">
-        <button
-          type="button"
-          aria-label={`Decrease ${label}`}
-          onClick={() => onChange(value - 1)}
-          className="grid size-11 place-items-center rounded-lg border border-slate-200 text-slate-600 transition active:bg-slate-50"
-        >
-          <MinusIcon size={14} weight="bold" />
-        </button>
-        <button
-          type="button"
-          aria-label={`Increase ${label}`}
-          onClick={() => onChange(value + 1)}
-          className="grid size-11 place-items-center rounded-lg border border-slate-200 text-slate-600 transition active:bg-slate-50"
-        >
-          <PlusIcon size={14} weight="bold" />
-        </button>
+      <div className="mt-1.5 flex min-h-12 items-center justify-between rounded-xl border border-slate-200 bg-white px-3 transition-colors focus-within:border-slate-900">
+        <div className="flex min-w-0 items-baseline gap-1">
+          <input
+            type="text"
+            inputMode="numeric"
+            autoComplete="off"
+            aria-label={label}
+            value={draft}
+            onChange={(e) => handleInput(e.currentTarget.value)}
+            onBlur={() => {
+              if (draft.length === 0) setDraft(String(value));
+            }}
+            className="w-12 bg-transparent font-medium text-[15px] text-slate-900 tabular-nums outline-none"
+          />
+          {suffix !== undefined && <span className="text-[15px] text-slate-400">{suffix}</span>}
+        </div>
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            aria-label={`Decrease ${label}`}
+            onClick={() => onChange(value - 1)}
+            className="grid size-8 place-items-center rounded-lg border border-slate-200 text-slate-600 transition active:bg-slate-50"
+          >
+            <MinusIcon size={13} weight="bold" />
+          </button>
+          <button
+            type="button"
+            aria-label={`Increase ${label}`}
+            onClick={() => onChange(value + 1)}
+            className="grid size-8 place-items-center rounded-lg border border-slate-200 text-slate-600 transition active:bg-slate-50"
+          >
+            <PlusIcon size={13} weight="bold" />
+          </button>
+        </div>
       </div>
     </div>
-  </div>
+  );
+};
+
+const RemoveButton = ({
+  label,
+  onClick,
+}: {
+  label: string;
+  onClick: () => void;
+}): ReactElement => (
+  <button
+    type="button"
+    aria-label={label}
+    onClick={onClick}
+    className="grid size-11 shrink-0 place-items-center rounded-lg text-slate-300 transition active:bg-slate-100 active:text-slate-500"
+  >
+    <XIcon size={14} weight="bold" />
+  </button>
 );
 
 const textInput =
@@ -93,6 +142,7 @@ export const CreateRecipeScreen = (): ReactElement => {
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState<RecipeCategory>("Main");
   const [description, setDescription] = useState("");
+  const [image, setImage] = useState<string | null>(null);
   const [minutes, setMinutes] = useState(30);
   const [serves, setServes] = useState(2);
   const [ingredients, setIngredients] = useState<IngredientDraft[]>(() => [newIngredient()]);
@@ -103,6 +153,30 @@ export const CreateRecipeScreen = (): ReactElement => {
     setIngredients((prev) => prev.map((row, i) => (i === index ? { ...row, ...patch } : row)));
   const setStep = (index: number, patch: Partial<StepDraft>): void =>
     setSteps((prev) => prev.map((row, i) => (i === index ? { ...row, ...patch } : row)));
+
+  const addTimer = (stepIndex: number): void =>
+    setSteps((prev) =>
+      prev.map((row, i) =>
+        i === stepIndex ? { ...row, timers: [...row.timers, newTimer()] } : row,
+      ),
+    );
+  const setTimer = (stepIndex: number, timerId: string, value: string): void =>
+    setSteps((prev) =>
+      prev.map((row, i) =>
+        i === stepIndex
+          ? {
+              ...row,
+              timers: row.timers.map((t) => (t.id === timerId ? { ...t, minutes: value } : t)),
+            }
+          : row,
+      ),
+    );
+  const removeTimer = (stepIndex: number, timerId: string): void =>
+    setSteps((prev) =>
+      prev.map((row, i) =>
+        i === stepIndex ? { ...row, timers: row.timers.filter((t) => t.id !== timerId) } : row,
+      ),
+    );
 
   const create = useMutation({
     mutationFn: createRecipe,
@@ -119,7 +193,13 @@ export const CreateRecipeScreen = (): ReactElement => {
       .map((i) => ({ name: i.name.trim(), quantity: i.quantity.trim() }))
       .filter((i) => i.name.length > 0);
     const cleanSteps = steps
-      .map((s) => ({ title: s.title.trim(), body: s.body.trim(), minutes: s.minutes.trim() }))
+      .map((s) => ({
+        title: s.title.trim(),
+        body: s.body.trim(),
+        timers: s.timers
+          .map((t) => ({ id: t.id, minutes: Number.parseInt(t.minutes, 10) }))
+          .filter((t) => Number.isFinite(t.minutes) && t.minutes > 0),
+      }))
       .filter((s) => s.title.length > 0 && s.body.length > 0);
 
     if (title.trim().length === 0) {
@@ -141,19 +221,23 @@ export const CreateRecipeScreen = (): ReactElement => {
       category,
       minutes,
       serves,
+      ...(image !== null ? { image } : {}),
       ingredients: cleanIngredients.map((i) => ({
         name: i.name,
         quantity: i.quantity,
         haveAtHome: false,
       })),
-      steps: cleanSteps.map((s) => {
-        const parsed = Number.parseInt(s.minutes, 10);
-        const timers =
-          Number.isFinite(parsed) && parsed > 0
-            ? [{ id: crypto.randomUUID(), minutes: clamp(parsed, 1, 1440), label: s.title }]
-            : [];
-        return { title: s.title, body: s.body, concurrent: false, uses: [], timers };
-      }),
+      steps: cleanSteps.map((s) => ({
+        title: s.title,
+        body: s.body,
+        concurrent: false,
+        uses: [],
+        timers: s.timers.map((t) => ({
+          id: t.id,
+          minutes: clamp(t.minutes, 1, 1440),
+          label: s.title,
+        })),
+      })),
     };
 
     setError(null);
@@ -161,7 +245,7 @@ export const CreateRecipeScreen = (): ReactElement => {
   };
 
   return (
-    <main className="flex min-h-dvh flex-col bg-slate-50">
+    <main className="flex h-dvh flex-col overflow-hidden bg-slate-50">
       <header className="flex h-12 shrink-0 items-center justify-between border-slate-100 border-b bg-white px-3 pt-[env(safe-area-inset-top)]">
         <Link
           to="/recipes"
@@ -173,8 +257,10 @@ export const CreateRecipeScreen = (): ReactElement => {
         <div className="w-[52px] shrink-0" />
       </header>
 
-      <div className="flex-1 overflow-y-auto bg-white px-5 pt-4 pb-28">
+      <div className="flex-1 overflow-y-auto bg-white px-5 pt-4 pb-6">
         <div className="space-y-4">
+          <PhotoInput value={image} onChange={setImage} onError={(m) => toast.error(m)} />
+
           <Field label="Title">
             <input
               type="text"
@@ -267,18 +353,12 @@ export const CreateRecipeScreen = (): ReactElement => {
                   placeholder="Qty"
                   className="min-h-11 w-[84px] rounded-xl border border-slate-200 bg-white px-3 text-base text-slate-900 tabular-nums outline-none transition-colors placeholder:text-slate-400 focus:border-slate-900"
                 />
-                <button
-                  type="button"
-                  aria-label="Remove ingredient"
-                  onClick={() =>
-                    setIngredients((prev) =>
-                      prev.length === 1 ? prev : prev.filter((_, i) => i !== index),
-                    )
-                  }
-                  className="grid size-11 shrink-0 place-items-center rounded-lg text-slate-300 transition active:bg-slate-100 active:text-slate-500"
-                >
-                  <XIcon size={14} weight="bold" />
-                </button>
+                {ingredients.length > 1 && (
+                  <RemoveButton
+                    label={`Remove ingredient ${index + 1}`}
+                    onClick={() => setIngredients((prev) => prev.filter((_, i) => i !== index))}
+                  />
+                )}
               </div>
             ))}
             <button
@@ -303,17 +383,25 @@ export const CreateRecipeScreen = (): ReactElement => {
                   {index + 1}
                 </div>
                 <div className="min-w-0 flex-1 space-y-2">
-                  <input
-                    type="text"
-                    inputMode="text"
-                    autoComplete="off"
-                    autoCapitalize="sentences"
-                    aria-label={`Step ${index + 1} title`}
-                    value={row.title}
-                    onChange={(e) => setStep(index, { title: e.currentTarget.value })}
-                    placeholder="Step title"
-                    className="min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3.5 text-base text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-slate-900"
-                  />
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      inputMode="text"
+                      autoComplete="off"
+                      autoCapitalize="sentences"
+                      aria-label={`Step ${index + 1} title`}
+                      value={row.title}
+                      onChange={(e) => setStep(index, { title: e.currentTarget.value })}
+                      placeholder="Step title"
+                      className="min-h-11 flex-1 rounded-xl border border-slate-200 bg-white px-3.5 text-base text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-slate-900"
+                    />
+                    {steps.length > 1 && (
+                      <RemoveButton
+                        label={`Remove step ${index + 1}`}
+                        onClick={() => setSteps((prev) => prev.filter((_, i) => i !== index))}
+                      />
+                    )}
+                  </div>
                   <textarea
                     inputMode="text"
                     autoComplete="off"
@@ -325,30 +413,43 @@ export const CreateRecipeScreen = (): ReactElement => {
                     placeholder="What to do…"
                     className="w-full resize-none rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-base text-slate-700 leading-relaxed outline-none transition-colors placeholder:text-slate-400 focus:border-slate-900"
                   />
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      autoComplete="off"
-                      aria-label={`Step ${index + 1} timer minutes`}
-                      value={row.minutes}
-                      onChange={(e) =>
-                        setStep(index, { minutes: e.currentTarget.value.replace(/[^0-9]/g, "") })
-                      }
-                      placeholder="Timer min"
-                      className="min-h-11 w-[120px] rounded-xl border border-slate-200 bg-white px-3 text-base text-slate-900 tabular-nums outline-none transition-colors placeholder:text-slate-400 focus:border-slate-900"
-                    />
+                  <div className="flex flex-wrap items-center gap-2">
+                    {row.timers.map((timer, timerIndex) => (
+                      <span
+                        key={timer.id}
+                        className="inline-flex h-8 items-center gap-1 rounded-full pr-1.5 pl-2.5 font-semibold text-[13px] text-white"
+                        style={{ background: ACCENT }}
+                      >
+                        <TimerIcon size={14} weight="fill" />
+                        <input
+                          inputMode="numeric"
+                          autoComplete="off"
+                          aria-label={`Step ${index + 1} timer ${timerIndex + 1} minutes`}
+                          value={timer.minutes}
+                          onChange={(e) =>
+                            setTimer(index, timer.id, onlyDigits(e.currentTarget.value))
+                          }
+                          placeholder="5"
+                          className="w-7 bg-transparent text-center text-white tabular-nums outline-none placeholder:text-white/60"
+                        />
+                        min
+                        <button
+                          type="button"
+                          aria-label={`Remove timer ${timerIndex + 1}`}
+                          onClick={() => removeTimer(index, timer.id)}
+                          className="ml-0.5 grid size-5 place-items-center rounded-full bg-white/25 transition active:bg-white/40"
+                        >
+                          <XIcon size={10} weight="bold" />
+                        </button>
+                      </span>
+                    ))}
                     <button
                       type="button"
-                      aria-label="Remove step"
-                      onClick={() =>
-                        setSteps((prev) =>
-                          prev.length === 1 ? prev : prev.filter((_, i) => i !== index),
-                        )
-                      }
-                      className="grid size-11 shrink-0 place-items-center rounded-lg text-slate-300 transition active:bg-slate-100 active:text-slate-500"
+                      onClick={() => addTimer(index)}
+                      className="inline-flex h-8 items-center gap-1.5 rounded-full border border-slate-300 border-dashed px-3 font-medium text-[13px] text-slate-500 transition active:bg-slate-50"
                     >
-                      <XIcon size={14} weight="bold" />
+                      <PlusIcon size={13} weight="bold" />
+                      Add a time
                     </button>
                   </div>
                 </div>

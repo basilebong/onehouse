@@ -36,6 +36,13 @@
       "when": 1780172101480,
       "tag": "0004_strong_rattler",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1780175050520,
+      "tag": "0005_silky_whizzer",
+      "breakpoints": true
     }
   ]
 }

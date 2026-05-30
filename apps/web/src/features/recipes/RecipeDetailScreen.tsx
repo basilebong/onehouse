@@ -3,26 +3,35 @@ import {
   type Ingredient,
   type Recipe,
   RecipeIdSchema,
+  type RecipeStep,
+  type TimerMap,
   defaultGrocerySelection,
   formatMinutes,
 } from "@onehouse/app-recipes/shared";
 import {
   Avatar,
+  CookTimeButton,
   FloatingTimers,
   IngredientRow,
   IngredientToggle,
   MetaChip,
   PhotoPlaceholder,
   StepCard,
+  exportRecipePdf,
   useTimers,
 } from "@onehouse/app-recipes/ui";
 import {
   ArrowLeftIcon,
+  ArrowRightIcon,
+  ArrowsSplitIcon,
   BasketIcon,
   ClockIcon,
   CookingPotIcon,
+  EyeIcon,
+  FilePdfIcon,
   ForkKnifeIcon,
   WarningCircleIcon,
+  XIcon,
 } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
@@ -38,7 +47,7 @@ import { fetchRecipe } from "@/lib/recipes-api";
 const ACCENT = "#ff6b35";
 const GROCERY_QUERY_KEY = ["grocery", "items"] as const;
 
-type View = "ingredients" | "method";
+type Screen = { kind: "read" } | { kind: "method" } | { kind: "cook"; stepIndex: number };
 
 const toGroceryInput = (ingredient: Ingredient): CreateItemInput => {
   const quantity = ingredient.quantity.trim();
@@ -48,8 +57,15 @@ const toGroceryInput = (ingredient: Ingredient): CreateItemInput => {
 };
 
 const Shell = ({ children }: { children: ReactElement | ReactElement[] }): ReactElement => (
-  <main className="relative flex min-h-dvh flex-col bg-slate-50">{children}</main>
+  <main className="relative flex h-dvh flex-col overflow-hidden bg-slate-50">{children}</main>
 );
+
+const Hero = ({ recipe }: { recipe: Recipe }): ReactElement =>
+  recipe.image === null ? (
+    <PhotoPlaceholder className="h-44 w-full" />
+  ) : (
+    <img src={recipe.image} alt={recipe.title} className="h-44 w-full object-cover" />
+  );
 
 const NotFound = (): ReactElement => (
   <Shell>
@@ -157,19 +173,167 @@ const AddToGroceryDrawer = ({
   );
 };
 
+const StepUses = ({ uses }: { uses: RecipeStep["uses"] }): ReactElement => (
+  <div className="mt-4 flex flex-wrap gap-x-3 gap-y-1 text-[14px]">
+    {uses.map((u) => (
+      <span key={u.name} className="text-slate-500">
+        {u.name}
+        {u.quantity !== null && <span className="text-slate-400 tabular-nums"> {u.quantity}</span>}
+      </span>
+    ))}
+  </div>
+);
+
+const CookView = ({
+  recipe,
+  stepIndex,
+  timers,
+  now,
+  start,
+  cancel,
+  onExit,
+  onStep,
+}: {
+  recipe: Recipe;
+  stepIndex: number;
+  timers: TimerMap;
+  now: number;
+  start: (id: string, label: string, minutes: number) => void;
+  cancel: (id: string) => void;
+  onExit: () => void;
+  onStep: (index: number) => void;
+}): ReactElement => {
+  const total = recipe.steps.length;
+  const step = recipe.steps[stepIndex];
+  if (step === undefined) return <NotFound />;
+  const isLast = stepIndex === total - 1;
+
+  return (
+    <main className="relative flex h-dvh flex-col overflow-hidden bg-white">
+      <div className="flex h-12 shrink-0 items-center justify-between px-3 pt-[env(safe-area-inset-top)]">
+        <button
+          type="button"
+          onClick={onExit}
+          aria-label="Exit cook mode"
+          className="grid size-11 place-items-center rounded-full text-slate-600 transition active:bg-slate-100"
+        >
+          <XIcon size={18} weight="bold" />
+        </button>
+        <div className="font-semibold text-[13px] text-slate-500 tabular-nums">
+          Step {stepIndex + 1} of {total}
+        </div>
+        <div className="grid size-11 place-items-center text-slate-300" title="Screen stays on">
+          <EyeIcon size={18} />
+        </div>
+      </div>
+
+      <div className="flex shrink-0 gap-1.5 px-5">
+        {recipe.steps.map((s, i) => (
+          <span
+            key={`${i}-${s.title}`}
+            className="h-1 flex-1 rounded-full"
+            style={{ background: i <= stepIndex ? ACCENT : "#e2e8f0" }}
+          />
+        ))}
+      </div>
+
+      <div className="flex-1 overflow-y-auto px-6">
+        <div className="flex min-h-full flex-col justify-center py-6">
+          {step.concurrent && (
+            <div className="mb-3 flex items-center gap-2 font-semibold text-[11px] text-slate-400 uppercase tracking-[0.14em]">
+              <ArrowsSplitIcon size={13} weight="bold" /> Meanwhile
+            </div>
+          )}
+          <h2 className="font-semibold text-[28px] text-slate-900 leading-[1.1] tracking-tight">
+            {step.title}
+          </h2>
+          <p className="mt-3 text-pretty text-[18px] text-slate-600 leading-relaxed">{step.body}</p>
+          {step.uses.length > 0 && <StepUses uses={step.uses} />}
+          {step.timers.length > 0 && (
+            <div className="mt-7 flex flex-col gap-2.5">
+              {step.timers.map((tm) => (
+                <CookTimeButton
+                  key={tm.id}
+                  id={tm.id}
+                  minutes={tm.minutes}
+                  label={tm.label}
+                  timer={timers[tm.id]}
+                  now={now}
+                  accent={ACCENT}
+                  onStart={start}
+                  onCancel={cancel}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <FloatingTimers
+        timers={timers}
+        now={now}
+        accent={ACCENT}
+        onCancel={cancel}
+        bottomClassName="bottom-[calc(env(safe-area-inset-bottom)+6.25rem)]"
+      />
+
+      <div className="flex shrink-0 items-center gap-3 px-5 pt-2 pb-[max(env(safe-area-inset-bottom),1.25rem)]">
+        <button
+          type="button"
+          disabled={stepIndex === 0}
+          onClick={() => onStep(stepIndex - 1)}
+          className="inline-flex h-12 items-center gap-1.5 rounded-2xl border border-slate-200 px-5 font-medium text-[15px] text-slate-600 transition active:bg-slate-50 disabled:opacity-40"
+        >
+          <ArrowLeftIcon size={16} weight="bold" /> Back
+        </button>
+        <button
+          type="button"
+          onClick={() => (isLast ? onExit() : onStep(stepIndex + 1))}
+          className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-2xl bg-slate-900 font-semibold text-[15px] text-white transition active:scale-[0.99]"
+        >
+          {isLast ? (
+            "Finish"
+          ) : (
+            <>
+              Next step <ArrowRightIcon size={16} weight="bold" />
+            </>
+          )}
+        </button>
+      </div>
+    </main>
+  );
+};
+
 const RecipeView = ({ recipe }: { recipe: Recipe }): ReactElement => {
-  const [view, setView] = useState<View>("ingredients");
+  const [screen, setScreen] = useState<Screen>({ kind: "read" });
   const [drawerOpen, setDrawerOpen] = useState(false);
   const { timers, now, start, cancel } = useTimers();
 
-  if (view === "method") {
+  const onExport = (): void => exportRecipePdf(recipe, (m) => toast.error(m));
+
+  if (screen.kind === "cook") {
+    return (
+      <CookView
+        recipe={recipe}
+        stepIndex={screen.stepIndex}
+        timers={timers}
+        now={now}
+        start={start}
+        cancel={cancel}
+        onExit={() => setScreen({ kind: "read" })}
+        onStep={(index) => setScreen({ kind: "cook", stepIndex: index })}
+      />
+    );
+  }
+
+  if (screen.kind === "method") {
     return (
       <Shell>
         <div className="flex h-12 shrink-0 items-center justify-between border-slate-100 border-b bg-white px-3 pt-[env(safe-area-inset-top)]">
           <button
             type="button"
-            onClick={() => setView("ingredients")}
-            aria-label="Back to ingredients"
+            onClick={() => setScreen({ kind: "read" })}
+            aria-label="Back to recipe"
             className="grid size-11 place-items-center rounded-full text-slate-600 transition active:bg-slate-100"
           >
             <ArrowLeftIcon size={18} weight="bold" />
@@ -177,9 +341,16 @@ const RecipeView = ({ recipe }: { recipe: Recipe }): ReactElement => {
           <div className="truncate px-2 font-semibold text-[15px] text-slate-900">
             {recipe.title}
           </div>
-          <div className="size-11 shrink-0" />
+          <button
+            type="button"
+            onClick={onExport}
+            aria-label="Export as PDF"
+            className="grid size-11 place-items-center rounded-full text-slate-600 transition active:bg-slate-100"
+          >
+            <FilePdfIcon size={18} weight="bold" />
+          </button>
         </div>
-        <div className="flex-1 overflow-y-auto bg-white px-5 pt-4 pb-28">
+        <div className="flex-1 overflow-y-auto bg-white px-5 pt-4 pb-4">
           <h2 className="font-semibold text-[11px] text-slate-400 uppercase tracking-[0.12em]">
             Instructions
           </h2>
@@ -199,7 +370,24 @@ const RecipeView = ({ recipe }: { recipe: Recipe }): ReactElement => {
             ))}
           </div>
         </div>
-        <FloatingTimers timers={timers} now={now} accent={ACCENT} onCancel={cancel} />
+        <FloatingTimers
+          timers={timers}
+          now={now}
+          accent={ACCENT}
+          onCancel={cancel}
+          bottomClassName="bottom-[calc(env(safe-area-inset-bottom)+9.5rem)]"
+        />
+        <div className="shrink-0 border-slate-100 border-t bg-white px-5 pt-2.5 pb-3">
+          <button
+            type="button"
+            onClick={() => setScreen({ kind: "cook", stepIndex: 0 })}
+            className="flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl font-semibold text-[15px] text-white transition active:scale-[0.99]"
+            style={{ background: ACCENT }}
+          >
+            <CookingPotIcon size={18} weight="fill" />
+            Cook mode
+          </button>
+        </div>
         <BottomNav active="recipes" />
       </Shell>
     );
@@ -208,8 +396,8 @@ const RecipeView = ({ recipe }: { recipe: Recipe }): ReactElement => {
   return (
     <Shell>
       <div className="relative shrink-0">
-        <PhotoPlaceholder className="h-44 w-full" />
-        <div className="absolute inset-x-0 top-0 flex h-12 items-center px-2 pt-[env(safe-area-inset-top)]">
+        <Hero recipe={recipe} />
+        <div className="absolute inset-x-0 top-0 flex h-12 items-center justify-between px-2 pt-[env(safe-area-inset-top)]">
           <Link
             to="/recipes"
             aria-label="Back to recipes"
@@ -217,6 +405,14 @@ const RecipeView = ({ recipe }: { recipe: Recipe }): ReactElement => {
           >
             <ArrowLeftIcon size={18} weight="bold" />
           </Link>
+          <button
+            type="button"
+            onClick={onExport}
+            aria-label="Export as PDF"
+            className="grid size-11 place-items-center rounded-full bg-white/90 text-slate-800 shadow-sm backdrop-blur transition active:scale-95"
+          >
+            <FilePdfIcon size={18} weight="bold" />
+          </button>
         </div>
       </div>
 
@@ -266,10 +462,10 @@ const RecipeView = ({ recipe }: { recipe: Recipe }): ReactElement => {
         </div>
       </div>
 
-      <div className="shrink-0 border-slate-100 border-t bg-white px-5 pt-2.5 pb-[max(env(safe-area-inset-bottom),0.75rem)]">
+      <div className="shrink-0 border-slate-100 border-t bg-white px-5 pt-2.5 pb-3">
         <button
           type="button"
-          onClick={() => setView("method")}
+          onClick={() => setScreen({ kind: "method" })}
           className="flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl font-semibold text-[15px] text-white transition active:scale-[0.99]"
           style={{ background: ACCENT }}
         >

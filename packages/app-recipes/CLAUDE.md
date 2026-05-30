@@ -6,16 +6,19 @@ Owns the recipes feature end-to-end. Exports FOUR subpaths (mirrors
 - `./shared` — isomorphic; branded `RecipeId`, recipe/ingredient/step types,
   the `Starter|Main|Dessert|Other` category, the timer state machine, duration
   formatting, the `defaultGrocerySelection` helper, and Valibot create-recipe
-  validation.
-- `./server` — Drizzle `recipes` schema (ingredients/steps stored as
-  validated JSON), a service returning `Result`, and Hono routes.
+  validation (including the data-URL `image`, size-capped).
+- `./server` — Drizzle `recipes` schema (ingredients/steps stored as validated
+  JSON, optional `image` data URL in its own column), a service returning
+  `Result`, and Hono routes.
 - `./tools` — MCP `recipes.list` / `get` / `add` / `remove`.
-- `./ui` — React components (recipe detail pieces, ingredient rows, the
-  tappable `TimeChip` + `useTimers` hook, the floating timer stack, browse
-  cards).
+- `./ui` — React components (recipe detail pieces, ingredient rows, the tappable
+  `TimeChip` for the steps list + the big `CookTimeButton` for focused cook mode,
+  the `useTimers` hook, the floating timer stack, the `PhotoInput` uploader
+  (client-side canvas resize), `exportRecipePdf`, browse cards).
 
 Recipes are real persisted rows — authored via the web create form or MCP, not
-seeded.
+seeded. The recipe photo is an optional data URL the browser resizes before
+upload; it lives on the full `Recipe`, never on the list `RecipeSummary`.
 
 ## Local rules
 

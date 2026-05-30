@@ -32,7 +32,7 @@ export const RecipesScreen = (): ReactElement => {
 
   if (recipes.isPending) {
     return (
-      <main className="flex min-h-dvh flex-col bg-slate-50">
+      <main className="flex h-dvh flex-col overflow-hidden bg-slate-50">
         <header className="shrink-0 bg-white px-5 pt-[max(env(safe-area-inset-top),0.5rem)] pb-3">
           <h1 className="font-semibold text-2xl text-slate-900 tracking-tight">Recipes</h1>
         </header>
@@ -54,7 +54,7 @@ export const RecipesScreen = (): ReactElement => {
 
   if (recipes.isError) {
     return (
-      <main className="flex min-h-dvh flex-col bg-slate-50">
+      <main className="flex h-dvh flex-col overflow-hidden bg-slate-50">
         <div className="flex flex-1 flex-col items-center justify-center gap-4 px-8 text-center">
           <WarningCircleIcon size={40} weight="fill" className="text-slate-300" />
           <div>
@@ -75,7 +75,7 @@ export const RecipesScreen = (): ReactElement => {
   }
 
   return (
-    <main className="flex min-h-dvh flex-col bg-slate-50">
+    <main className="flex h-dvh flex-col overflow-hidden bg-slate-50">
       <header className="shrink-0 bg-white px-5 pt-[max(env(safe-area-inset-top),0.5rem)] pb-2">
         <h1 className="font-semibold text-2xl text-slate-900 tracking-tight">Recipes</h1>
         <p className="mt-0.5 text-slate-500 text-sm tabular-nums">

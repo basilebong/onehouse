@@ -29,7 +29,7 @@ export const TimeChip = ({
       <button
         type="button"
         onClick={() => onStart(id, label, minutes)}
-        className="inline-flex min-h-11 items-center gap-1.5 rounded-full bg-slate-100 pr-3.5 pl-3 font-semibold text-[13px] text-slate-700 transition active:scale-95"
+        className="group inline-flex h-8 items-center gap-1.5 rounded-full bg-slate-100 pr-3 pl-2.5 font-semibold text-[13px] text-slate-700 transition active:scale-95"
       >
         <TimerIcon size={16} className="text-slate-500" />
         <span className="tabular-nums">{minutes} min</span>
@@ -37,7 +37,7 @@ export const TimeChip = ({
     ))
     .with({ kind: "running" }, ({ remainingMs, fraction }) => (
       <span
-        className="relative inline-flex min-h-11 select-none items-center gap-1.5 overflow-hidden rounded-full pr-1.5 pl-2.5 font-semibold text-[13px] text-white"
+        className="relative inline-flex h-8 select-none items-center gap-1.5 overflow-hidden rounded-full pr-1.5 pl-2.5 font-semibold text-[13px] text-white"
         style={{ background: accent }}
       >
         <span
@@ -50,15 +50,15 @@ export const TimeChip = ({
           type="button"
           onClick={() => onCancel(id)}
           aria-label={`Cancel ${label} timer`}
-          className="relative grid size-6 place-items-center rounded-full bg-white/25 transition active:bg-white/40"
+          className="relative grid size-5 place-items-center rounded-full bg-white/25 transition active:bg-white/40"
         >
-          <XIcon size={11} weight="bold" />
+          <XIcon size={10} weight="bold" />
         </button>
       </span>
     ))
     .with({ kind: "done" }, () => (
       <span
-        className="inline-flex min-h-11 animate-oh-ring select-none items-center gap-1.5 rounded-full px-3 font-semibold text-[13px] text-white shadow-sm"
+        className="inline-flex h-8 animate-oh-ring select-none items-center gap-1.5 rounded-full px-3 font-semibold text-[13px] text-white shadow-sm"
         style={{ background: accent }}
       >
         <BellRingingIcon size={15} weight="fill" />
@@ -67,9 +67,9 @@ export const TimeChip = ({
           type="button"
           onClick={() => onCancel(id)}
           aria-label={`Dismiss ${label} timer`}
-          className="grid size-6 place-items-center rounded-full bg-white/25 transition active:bg-white/40"
+          className="-mr-1 grid size-5 place-items-center rounded-full bg-white/25 transition active:bg-white/40"
         >
-          <CheckIcon size={11} weight="bold" />
+          <CheckIcon size={10} weight="bold" />
         </button>
       </span>
     ))

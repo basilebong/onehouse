@@ -9,6 +9,7 @@ type FloatingTimersProps = {
   now: number;
   accent: string;
   onCancel: (id: string) => void;
+  bottomClassName?: string;
 };
 
 export const FloatingTimers = ({
@@ -16,12 +17,13 @@ export const FloatingTimers = ({
   now,
   accent,
   onCancel,
+  bottomClassName = "bottom-[calc(env(safe-area-inset-bottom)+5.5rem)]",
 }: FloatingTimersProps): ReactElement | null => {
   const entries = Object.entries(timers);
   if (entries.length === 0) return null;
 
   return (
-    <div className="absolute inset-x-3 bottom-[calc(env(safe-area-inset-bottom)+5.5rem)] z-30 flex flex-col gap-2">
+    <div className={cn("absolute inset-x-3 z-30 flex flex-col gap-2", bottomClassName)}>
       {entries.map(([id, timer]) => {
         const display = match(viewTimer(timer, now))
           .with({ kind: "idle" }, () => ({ done: false, fraction: 0, clock: formatClock(0) }))
@@ -71,7 +73,7 @@ export const FloatingTimers = ({
               type="button"
               onClick={() => onCancel(id)}
               aria-label={`Stop ${timer.label} timer`}
-              className="relative grid size-9 place-items-center rounded-full bg-white/10 transition active:bg-white/20"
+              className="relative grid size-7 place-items-center rounded-full bg-white/10 transition active:bg-white/20"
             >
               {display.done ? (
                 <CheckIcon size={13} weight="bold" />

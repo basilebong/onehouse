@@ -74,6 +74,7 @@ const SummarySchema = v.object({
 const RecipeSchema = v.object({
   ...SummarySchema.entries,
   description: v.string(),
+  image: v.nullable(v.string()),
   ingredients: v.array(
     v.object({ name: v.string(), quantity: v.string(), haveAtHome: v.boolean() }),
   ),
@@ -163,9 +164,32 @@ describe("recipe routes", () => {
         const recipe = await postRecipe(app, cookie, sampleRecipe());
         expect(recipe.title).toBe("Tomato Butter Rigatoni");
         expect(recipe.category).toBe("Main");
+        expect(recipe.image).toBeNull();
         expect(recipe.ingredients).toHaveLength(2);
         expect(recipe.steps[0]?.timers[0]).toEqual({ id: "pasta", minutes: 11, label: "Rigatoni" });
         expect(recipe.cook).toEqual({ name: "Basile", initial: "B" });
+      });
+    });
+
+    test("persists an uploaded image data URL", async () => {
+      await withRecipes(async ({ app, cookie }) => {
+        const image = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAQ==";
+        const created = await postRecipe(app, cookie, sampleRecipe({ image }));
+        expect(created.image).toBe(image);
+        const res = await app.request(`/api/recipes/${created.id}`, { headers: { cookie } });
+        const body = await parseJsonBody(res, RecipeEnvelopeSchema);
+        expect(body.recipe.image).toBe(image);
+      });
+    });
+
+    test("rejects an invalid image with 400", async () => {
+      await withRecipes(async ({ app, cookie }) => {
+        const res = await app.request("/api/recipes", {
+          method: "POST",
+          headers: { cookie, "content-type": "application/json" },
+          body: JSON.stringify(sampleRecipe({ image: "not-a-data-url" })),
+        });
+        expect(res.status).toBe(400);
       });
     });
 

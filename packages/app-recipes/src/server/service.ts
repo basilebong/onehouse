@@ -54,6 +54,7 @@ export const createRecipeService = (db: Db): RecipeService => ({
         id,
         title: input.title,
         description: input.description,
+        image: input.image ?? null,
         category: input.category,
         minutes: input.minutes,
         serves: input.serves,

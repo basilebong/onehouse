@@ -24,6 +24,7 @@ const SummarySchema = v.object({
 const RecipeSchema = v.object({
   ...SummarySchema.entries,
   description: v.string(),
+  image: v.nullable(v.string()),
   ingredients: v.array(IngredientInputSchema),
   steps: v.array(StepInputSchema),
 });

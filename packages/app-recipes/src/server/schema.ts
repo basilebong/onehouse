@@ -7,6 +7,7 @@ export const recipes = sqliteTable(
     id: text("id").primaryKey(),
     title: text("title").notNull(),
     description: text("description").notNull(),
+    image: text("image"),
     category: text("category").notNull(),
     minutes: integer("minutes").notNull(),
     serves: integer("serves").notNull(),
