@@ -61,7 +61,11 @@ export const GroceryScreen = (): ReactElement => {
     () => new Map(),
   );
 
-  const items = useQuery({ queryKey: ITEMS_QUERY_KEY, queryFn: fetchItems });
+  const items = useQuery({
+    queryKey: ITEMS_QUERY_KEY,
+    queryFn: fetchItems,
+    refetchInterval: 20_000,
+  });
 
   const setSync = (id: GroceryItemId, state: ItemSyncState | null): void => {
     setPending((prev) => {
