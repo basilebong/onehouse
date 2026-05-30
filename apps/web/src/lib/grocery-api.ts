@@ -22,11 +22,19 @@ const ItemSchema = v.object({
   ]),
   createdAt: v.number(),
   updatedAt: v.number(),
-  addedBy: v.object({
-    id: UserIdSchema,
-    name: v.string(),
-    initial: v.string(),
-  }),
+  addedBy: v.union([
+    v.object({
+      kind: v.literal("user"),
+      id: UserIdSchema,
+      name: v.string(),
+      initial: v.string(),
+    }),
+    v.object({
+      kind: v.literal("unknown"),
+      name: v.string(),
+      initial: v.string(),
+    }),
+  ]),
 });
 
 const ItemListResponseSchema = v.object({ items: v.array(ItemSchema) });

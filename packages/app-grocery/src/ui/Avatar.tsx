@@ -7,8 +7,11 @@ type AvatarProps = {
   size?: number;
 };
 
+const paletteKey = (author: GroceryAuthor): string =>
+  author.kind === "user" ? author.id : `unknown:${author.name}`;
+
 export const Avatar = ({ author, size = 24 }: AvatarProps): ReactElement => {
-  const palette = paletteFor(author.id);
+  const palette = paletteFor(paletteKey(author));
   return (
     <div
       role="img"

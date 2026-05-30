@@ -27,13 +27,15 @@ export const withTestAuth = async <T>(
   migrate(db, { migrationsFolder });
 
   const secret = "test-secret-must-be-at-least-32-chars-long";
+  const baseURL = options.baseURL ?? "http://localhost:5173";
   const auth = createAuth({
     db,
-    baseURL: options.baseURL ?? "http://localhost:5173",
+    baseURL,
     secret,
     google: { clientId: "test-google-id", clientSecret: "test-google-secret" },
     allowedEmails: parseAllowedEmails(options.allowedEmails),
     useSecureCookies: false,
+    mcpResource: `${baseURL}/mcp`,
   });
 
   const signSessionCookie = async (sessionToken: string): Promise<string> =>

@@ -9,8 +9,9 @@ You are working in a pnpm-workspaces monorepo. Loaded every session.
 - Frontend: React 19 + Vite + TanStack (Router, Query, Form) + Tailwind v4
 - UI components: shadcn/ui (copy-paste, in `apps/web/src/components/ui/`) + Vaul + Sonner + Phosphor
 - DB: bun:sqlite via Drizzle ORM (beta); migrations in `/drizzle`
-- Auth: Better Auth (passkey + oneTap + apiKey + google) — DO NOT hand-roll OAuth,
-  sessions, CSRF, or bearer tokens. Use the Better Auth API.
+- Auth: Better Auth (google + oneTap) for people; `jwt` + `@better-auth/oauth-provider`
+  (OAuth 2.1 Authorization Server) for MCP clients like Claude. DO NOT hand-roll
+  OAuth, sessions, CSRF, or bearer tokens. Use the Better Auth API.
 - Validation: Valibot at HTTP boundaries (in `shared/`), Zod inside MCP tool defs ONLY
 - Tests: bun:test; E2E via Playwright against the built Docker image
 - Distribution: single Dockerfile, single Bun process per container

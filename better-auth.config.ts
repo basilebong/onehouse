@@ -12,4 +12,5 @@ export const auth = createAuth({
   },
   allowedEmails: parseAllowedEmails(process.env.ONEHOUSE_ALLOWED_EMAILS),
   useSecureCookies: false,
+  mcpResource: `${process.env.BETTER_AUTH_URL ?? "http://localhost:5173"}/mcp`,
 });

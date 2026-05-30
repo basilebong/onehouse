@@ -1,5 +1,6 @@
 import type {
   CreateItemInput,
+  GroceryAuthor,
   GroceryItem,
   GroceryItemId,
   UpdateItemInput,
@@ -17,7 +18,7 @@ import {
   OfflineBanner,
   TopBar,
 } from "@onehouse/app-grocery/ui";
-import { type UserId, parseUserId } from "@onehouse/core/shared";
+import { parseUserId } from "@onehouse/core/shared";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { type ReactElement, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -30,24 +31,17 @@ import { createItem, deleteItem, fetchItems, togglePurchased, updateItem } from 
 
 const ITEMS_QUERY_KEY = ["grocery", "items"] as const;
 const TEMP_ID_PREFIX = "tmp_";
-const FALLBACK_USER_ID: UserId = parseUserId("me");
 
 const isTempId = (id: GroceryItemId): boolean => id.startsWith(TEMP_ID_PREFIX);
 
-type Identity = {
-  id: UserId;
-  name: string;
-  initial: string;
-};
-
-const useIdentity = (): Identity => {
+const useIdentity = (): GroceryAuthor => {
   const session = useSession();
   const user = session.data?.user;
-  if (user === undefined) return { id: FALLBACK_USER_ID, name: "You", initial: "·" };
+  if (user === undefined) return { kind: "unknown", name: "You", initial: "·" };
   const trimmed = user.name?.trim();
   const name = trimmed !== undefined && trimmed.length > 0 ? trimmed : (user.email ?? "You");
   const initial = name.charAt(0).toUpperCase() || "·";
-  return { id: parseUserId(user.id), name, initial };
+  return { kind: "user", id: parseUserId(user.id), name, initial };
 };
 
 type DrawerState =
@@ -87,21 +81,6 @@ export const GroceryScreen = (): ReactElement => {
     });
   };
 
-  useEffect(() => {
-    if (items.data === undefined) return;
-    setPending((prev) => {
-      let changed = false;
-      const next = new Map(prev);
-      for (const [id, state] of prev) {
-        if (state === "error") {
-          next.delete(id);
-          changed = true;
-        }
-      }
-      return changed ? next : prev;
-    });
-  }, [items.data]);
-
   const create = useMutation({
     mutationFn: createItem,
     onMutate: async (input: CreateItemInput) => {
@@ -114,7 +93,7 @@ export const GroceryScreen = (): ReactElement => {
         status: { kind: "pending" },
         createdAt: Date.now(),
         updatedAt: Date.now(),
-        addedBy: { id: identity.id, name: identity.name, initial: identity.initial },
+        addedBy: identity,
       };
       const previous = qc.getQueryData<GroceryItem[]>(ITEMS_QUERY_KEY) ?? [];
       qc.setQueryData<GroceryItem[]>(ITEMS_QUERY_KEY, [optimistic, ...previous]);
@@ -148,9 +127,14 @@ export const GroceryScreen = (): ReactElement => {
           i.id === id
             ? {
                 ...i,
-                status: purchased
-                  ? { kind: "purchased", purchasedAt: Date.now(), purchasedBy: identity.id }
-                  : { kind: "pending" },
+                status:
+                  purchased && identity.kind === "user"
+                    ? {
+                        kind: "purchased",
+                        purchasedAt: Date.now(),
+                        purchasedBy: identity.id,
+                      }
+                    : { kind: "pending" },
                 updatedAt: Date.now(),
               }
             : i,

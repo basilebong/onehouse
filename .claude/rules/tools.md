@@ -9,28 +9,40 @@ AND two community projects we trust have migrated.
 
 ## Transport
 
-Streamable HTTP at `/mcp`. stdio is for processes Claude Desktop spawns
-locally; this server lives in a container.
+Streamable HTTP at `/mcp`, via the SDK's `WebStandardStreamableHTTPServerTransport`
+(Web-standard `Request`/`Response`, native to Bun + Hono — no Node `req`/`res`
+shim). A fresh stateless transport + `McpServer` is created per request by
+`runMcpRequest` in `@onehouse/core/server`. stdio is for processes Claude
+Desktop spawns locally; this server lives in a container.
 
-DNS-rebinding protection is non-negotiable:
+DNS-rebinding protection is non-negotiable. The SDK deprecated its built-in
+`enableDnsRebindingProtection`/`allowedHosts` transport options in favour of
+external middleware, so we enforce it with the `mcpHostGuard` Hono middleware
+(a Host-header allowlist) mounted in front of `/mcp`:
 
 ```ts
-new StreamableHTTPServerTransport({
-  sessionIdGenerator: undefined,
-  enableDnsRebindingProtection: true,
-  allowedHosts: [process.env.MCP_HOST!, "localhost", "127.0.0.1"],
-});
+.use("/mcp", mcpHostGuard(allowedHosts)); // allowedHosts ⊇ [MCP_HOST, public host]
 ```
 
 ## Auth
 
-Better Auth API keys via the `requireApiKey` middleware in
-`@onehouse/core/server`. Family members mint and revoke keys from the web UI
-(`/settings/api-keys`). Every tool call records `{ userId, via: "mcp" }` in
-the audit log.
+OAuth 2.1 via Better Auth's `@better-auth/oauth-provider` plugin (paired with the
+`jwt()` plugin) — the server IS the OAuth Authorization Server for MCP clients.
+Claude Desktop / claude.ai discover it through
+`/.well-known/oauth-protected-resource` + `/.well-known/oauth-authorization-server`,
+self-register via Dynamic Client Registration, then run the PKCE (S256)
+authorization-code flow. The user signs in with Google (the existing social
+provider) and approves the `/consent` screen.
 
-Do NOT add a custom bearer scheme. Do NOT bypass `requireApiKey` for
-"convenience."
+`/mcp` is protected by `createMcpAuthGuard` in `@onehouse/core/server` (a thin
+wrapper over `mcpHandler` from `@better-auth/oauth-provider`): it verifies the
+Bearer JWT against our JWKS (`/api/auth/jwks`), checks issuer + audience, and
+yields `jwt.sub` (the `UserId`). Every tool call records `{ userId, via: "mcp" }`
+in the audit log.
+
+Do NOT hand-roll bearer validation. Do NOT bypass the auth guard for
+"convenience." API keys are NOT used here: Claude connects over OAuth, and the
+installed Better Auth ships no api-key plugin.
 
 ## Tool definitions
 
@@ -76,6 +88,8 @@ Always return both `content` (text, for the LLM to read) AND
 
 ## Testing
 
-Tool handlers tested in `packages/app-*/src/tools/**.test.ts` via the same
-`withTestContext` helper, plus a real `apiKey` issued via the test user
-helper.
+Tool handlers are tested in `packages/app-*/src/tools/**.test.ts` by driving a
+real `McpServer` over the SDK's `InMemoryTransport` with an SDK `Client` (no
+mocks), against a fresh `:memory:` DB via `withTestAuth`. The OAuth happy path
+(discovery → token → authenticated `/mcp`) is verified end-to-end with the MCP
+Inspector and against the built Docker image.

@@ -3,6 +3,7 @@ import * as v from "valibot";
 
 import { AuthGuard } from "@/components/AuthGuard";
 import { CheckingScreen } from "@/features/auth/CheckingScreen";
+import { ConsentScreen } from "@/features/auth/ConsentScreen";
 import { FirstArrivalScreen } from "@/features/auth/FirstArrivalScreen";
 import { RejectedScreen } from "@/features/auth/RejectedScreen";
 import { SignInScreen } from "@/features/auth/SignInScreen";
@@ -62,12 +63,26 @@ export const groceryRoute = createRoute({
   ),
 });
 
+const consentSearchSchema = v.object({
+  client_id: v.optional(v.string()),
+  scope: v.optional(v.string()),
+});
+
+export const consentRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/consent",
+  validateSearch: (search): v.InferOutput<typeof consentSearchSchema> =>
+    v.parse(consentSearchSchema, search),
+  component: ConsentScreen,
+});
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   signInRoute,
   rejectedRoute,
   welcomeRoute,
   groceryRoute,
+  consentRoute,
 ]);
 
 export const router = createRouter({

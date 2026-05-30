@@ -7,7 +7,7 @@ CREATE TABLE `grocery_items` (
 	`created_at` integer NOT NULL,
 	`updated_at` integer NOT NULL,
 	`purchased_at` integer,
-	FOREIGN KEY (`added_by_user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE set null
+	FOREIGN KEY (`added_by_user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
 CREATE INDEX `grocery_items_purchased_at_idx` ON `grocery_items` (`purchased_at`);--> statement-breakpoint

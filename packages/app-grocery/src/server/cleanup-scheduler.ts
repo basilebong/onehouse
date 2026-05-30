@@ -53,7 +53,7 @@ export const createCleanupScheduler = (opts: CleanupOptions): CleanupScheduler =
   };
 
   const reconcile = async (): Promise<void> => {
-    const items = await opts.service.list();
+    const items = await opts.service.listPurchased();
     const now = Date.now();
     for (const item of items) {
       if (!isPurchased(item.status)) continue;

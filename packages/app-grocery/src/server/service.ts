@@ -1,5 +1,5 @@
 import type { Db } from "@onehouse/core/server";
-import { desc, eq } from "@onehouse/core/server/drizzle";
+import { and, desc, eq, isNotNull } from "@onehouse/core/server/drizzle";
 import { users } from "@onehouse/core/server/schema";
 import { type Result, type UserId, err, isErr, ok } from "@onehouse/core/shared";
 import { ulid } from "ulid";
@@ -17,6 +17,7 @@ import { rowToItem, serializeStatus } from "./serialize.ts";
 
 export type GroceryService = {
   list(): Promise<GroceryItem[]>;
+  listPurchased(): Promise<GroceryItem[]>;
   create(input: CreateItemInput, by: UserId): Promise<Result<GroceryItem, GroceryError>>;
   update(id: GroceryItemId, input: UpdateItemInput): Promise<Result<GroceryItem, GroceryError>>;
   markPurchased(id: GroceryItemId, by: UserId): Promise<Result<GroceryItem, GroceryError>>;
@@ -27,14 +28,14 @@ export type GroceryService = {
   ): Promise<Result<{ id: GroceryItemId; removed: boolean }, GroceryError>>;
 };
 
-type AuthorJoin = {
-  item: typeof groceryItems.$inferSelect;
-  author: { id: string; name: string | null; email: string | null } | null;
-};
+type AuthorRow = { id: string; name: string | null; email: string | null } | null;
+type WithAuthor = { item: typeof groceryItems.$inferSelect; author: AuthorRow };
 
-const fetchWithAuthor = async (db: Db, id: GroceryItemId): Promise<AuthorJoin | null> => {
+const authorColumns = { id: users.id, name: users.name, email: users.email } as const;
+
+const fetchWithAuthor = async (db: Db, id: GroceryItemId): Promise<WithAuthor | null> => {
   const rows = await db
-    .select({ item: groceryItems, author: { id: users.id, name: users.name, email: users.email } })
+    .select({ item: groceryItems, author: authorColumns })
     .from(groceryItems)
     .leftJoin(users, eq(users.id, groceryItems.addedByUserId))
     .where(eq(groceryItems.id, id))
@@ -42,15 +43,27 @@ const fetchWithAuthor = async (db: Db, id: GroceryItemId): Promise<AuthorJoin | 
   return rows[0] ?? null;
 };
 
+const fetchAuthor = async (db: Db, userId: UserId): Promise<AuthorRow> => {
+  const rows = await db.select(authorColumns).from(users).where(eq(users.id, userId)).limit(1);
+  return rows[0] ?? null;
+};
+
 export const createGroceryService = (db: Db): GroceryService => ({
   async list() {
     const rows = await db
-      .select({
-        item: groceryItems,
-        author: { id: users.id, name: users.name, email: users.email },
-      })
+      .select({ item: groceryItems, author: authorColumns })
       .from(groceryItems)
       .leftJoin(users, eq(users.id, groceryItems.addedByUserId))
+      .orderBy(desc(groceryItems.createdAt));
+    return rows.map((r) => rowToItem(r.item, r.author));
+  },
+
+  async listPurchased() {
+    const rows = await db
+      .select({ item: groceryItems, author: authorColumns })
+      .from(groceryItems)
+      .leftJoin(users, eq(users.id, groceryItems.addedByUserId))
+      .where(isNotNull(groceryItems.purchasedAt))
       .orderBy(desc(groceryItems.createdAt));
     return rows.map((r) => rowToItem(r.item, r.author));
   },
@@ -58,90 +71,94 @@ export const createGroceryService = (db: Db): GroceryService => ({
   async create(input, by) {
     const now = new Date();
     const id = parseGroceryItemId(ulid());
-    await db.insert(groceryItems).values({
-      id,
-      name: input.name,
-      description: input.description ?? null,
-      statusJson: serializeStatus({ kind: "pending" }),
-      addedByUserId: by,
-      createdAt: now,
-      updatedAt: now,
-      purchasedAt: null,
-    });
-    const row = await fetchWithAuthor(db, id);
-    if (row === null) return err({ kind: "not_found", id });
-    return ok(rowToItem(row.item, row.author));
+    const inserted = await db
+      .insert(groceryItems)
+      .values({
+        id,
+        name: input.name,
+        description: input.description ?? null,
+        statusJson: serializeStatus({ kind: "pending" }),
+        addedByUserId: by,
+        createdAt: now,
+        updatedAt: now,
+        purchasedAt: null,
+      })
+      .returning();
+    const row = inserted[0];
+    if (row === undefined) return err({ kind: "not_found", id });
+    const author = await fetchAuthor(db, by);
+    return ok(rowToItem(row, author));
   },
 
   async update(id, input) {
     if (input.name === undefined && input.description === undefined) {
       return err({ kind: "invalid_input", message: "Provide a name or description to update" });
     }
-    const row = await fetchWithAuthor(db, id);
-    if (row === null) return err({ kind: "not_found", id });
+    const existing = await fetchWithAuthor(db, id);
+    if (existing === null) return err({ kind: "not_found", id });
     const patch: { name?: string; description?: string | null; updatedAt: Date } = {
       updatedAt: new Date(),
     };
     if (input.name !== undefined) patch.name = input.name;
     if (input.description !== undefined) patch.description = input.description;
-    await db.update(groceryItems).set(patch).where(eq(groceryItems.id, id));
-    const updated = await fetchWithAuthor(db, id);
-    if (updated === null) return err({ kind: "not_found", id });
-    return ok(rowToItem(updated.item, updated.author));
+    const updated = await db
+      .update(groceryItems)
+      .set(patch)
+      .where(eq(groceryItems.id, id))
+      .returning();
+    const row = updated[0];
+    if (row === undefined) return err({ kind: "not_found", id });
+    return ok(rowToItem(row, existing.author));
   },
 
   async markPurchased(id, by) {
-    const row = await fetchWithAuthor(db, id);
-    if (row === null) return err({ kind: "not_found", id });
-    const current = rowToItem(row.item, row.author);
+    const existing = await fetchWithAuthor(db, id);
+    if (existing === null) return err({ kind: "not_found", id });
+    const current = rowToItem(existing.item, existing.author);
     const at = Date.now();
     const next = transition(current.status, { kind: "mark_purchased", by, at });
     if (isErr(next)) return err({ kind: "already_in_state", state: next.error.state });
-    await db
+    const updated = await db
       .update(groceryItems)
-      .set({
-        statusJson: serializeStatus(next.value),
-        purchasedAt: new Date(at),
-      })
-      .where(eq(groceryItems.id, id));
-    const updated = await fetchWithAuthor(db, id);
-    if (updated === null) return err({ kind: "not_found", id });
-    return ok(rowToItem(updated.item, updated.author));
+      .set({ statusJson: serializeStatus(next.value), purchasedAt: new Date(at) })
+      .where(eq(groceryItems.id, id))
+      .returning();
+    const row = updated[0];
+    if (row === undefined) return err({ kind: "not_found", id });
+    return ok(rowToItem(row, existing.author));
   },
 
   async markPending(id) {
-    const row = await fetchWithAuthor(db, id);
-    if (row === null) return err({ kind: "not_found", id });
-    const current = rowToItem(row.item, row.author);
+    const existing = await fetchWithAuthor(db, id);
+    if (existing === null) return err({ kind: "not_found", id });
+    const current = rowToItem(existing.item, existing.author);
     const next = transition(current.status, { kind: "mark_pending" });
     if (isErr(next)) return err({ kind: "already_in_state", state: next.error.state });
-    await db
+    const updated = await db
       .update(groceryItems)
-      .set({
-        statusJson: serializeStatus(next.value),
-        purchasedAt: null,
-      })
-      .where(eq(groceryItems.id, id));
-    const updated = await fetchWithAuthor(db, id);
-    if (updated === null) return err({ kind: "not_found", id });
-    return ok(rowToItem(updated.item, updated.author));
+      .set({ statusJson: serializeStatus(next.value), purchasedAt: null })
+      .where(eq(groceryItems.id, id))
+      .returning();
+    const row = updated[0];
+    if (row === undefined) return err({ kind: "not_found", id });
+    return ok(rowToItem(row, existing.author));
   },
 
   async remove(id) {
-    const row = await fetchWithAuthor(db, id);
-    if (row === null) return err({ kind: "not_found", id });
-    await db.delete(groceryItems).where(eq(groceryItems.id, id));
-    return ok({ id });
+    const deleted = await db
+      .delete(groceryItems)
+      .where(eq(groceryItems.id, id))
+      .returning({ id: groceryItems.id });
+    const row = deleted[0];
+    if (row === undefined) return err({ kind: "not_found", id });
+    return ok({ id: parseGroceryItemId(row.id) });
   },
 
   async removeIfPurchased(id) {
-    const row = await fetchWithAuthor(db, id);
-    if (row === null) return err({ kind: "not_found", id });
-    const current = rowToItem(row.item, row.author);
-    if (current.status.kind !== "purchased") {
-      return ok({ id, removed: false });
-    }
-    await db.delete(groceryItems).where(eq(groceryItems.id, id));
-    return ok({ id, removed: true });
+    const deleted = await db
+      .delete(groceryItems)
+      .where(and(eq(groceryItems.id, id), isNotNull(groceryItems.purchasedAt)))
+      .returning({ id: groceryItems.id });
+    return ok({ id, removed: deleted.length > 0 });
   },
 });

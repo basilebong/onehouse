@@ -11,15 +11,6 @@ type ListBodyProps = {
   onRemove?: (id: GroceryItemId) => void;
 };
 
-const SectionHeading = ({ children }: { children: string }): ReactElement => (
-  <li
-    role="presentation"
-    className="bg-white px-5 pt-5 pb-2 font-semibold text-[11px] text-slate-600 uppercase tracking-[0.12em]"
-  >
-    <h2 className="font-semibold">{children}</h2>
-  </li>
-);
-
 export const ListBody = ({
   items,
   syncStates,
@@ -41,14 +32,24 @@ export const ListBody = ({
   });
 
   return (
-    <ul className="flex-1 divide-y divide-slate-100 overflow-y-auto bg-white">
-      {active.map((it) => (
-        <ItemRow key={it.id} {...rowProps(it)} />
-      ))}
-      {done.length > 0 && <SectionHeading>{`Got it · ${done.length}`}</SectionHeading>}
-      {done.map((it) => (
-        <ItemRow key={it.id} {...rowProps(it)} />
-      ))}
-    </ul>
+    <div className="flex-1 overflow-y-auto bg-white">
+      <ul aria-label="To buy" className="divide-y divide-slate-100">
+        {active.map((it) => (
+          <ItemRow key={it.id} {...rowProps(it)} />
+        ))}
+      </ul>
+      {done.length > 0 && (
+        <>
+          <h2 className="bg-white px-5 pt-5 pb-2 font-semibold text-[11px] text-slate-600 uppercase tracking-[0.12em]">
+            {`Got it · ${done.length}`}
+          </h2>
+          <ul aria-label="Already bought" className="divide-y divide-slate-100">
+            {done.map((it) => (
+              <ItemRow key={it.id} {...rowProps(it)} />
+            ))}
+          </ul>
+        </>
+      )}
+    </div>
   );
 };

@@ -26,7 +26,8 @@ See the full architecture spec for context and rationale.
 - **UI:** shadcn/ui (copy-paste, in `apps/web/src/components/ui/`) + Vaul
   (drawers) + Sonner (toasts) + Phosphor Icons
 - **DB:** `bun:sqlite` via Drizzle ORM (beta)
-- **Auth:** Better Auth — passkeys, Google One Tap, API keys (for MCP)
+- **Auth:** Better Auth — Google sign-in (+ One Tap) for people; an OAuth 2.1
+  provider (`@better-auth/oauth-provider` + JWT) for MCP clients like Claude
 - **Validation:** Valibot at HTTP boundaries, Zod inside MCP tool defs only
 - **Tests:** `bun:test`; Playwright for end-to-end
 - **Package manager:** pnpm 11 (hardened defaults — see `.npmrc` and
@@ -148,6 +149,11 @@ GOOGLE_SECRET=<from Google Cloud>
 # Matched case-insensitively after trimming.
 ONEHOUSE_ALLOWED_EMAILS=basile@example.com,partner@example.com
 
+# Public Host the MCP endpoint is reached at (DNS-rebinding allowlist). The
+# server also allows the BETTER_AUTH_URL host + localhost:$PORT automatically,
+# so local dev needs no change. In prod set it to your domain.
+MCP_HOST=localhost
+
 DATABASE_PATH=./data/app.db
 ```
 
@@ -182,6 +188,37 @@ To add a new family member:
 If you're not on the allowlist, step 5 returns `403`; the URL will show
 the Better Auth error code. Fix: add your email to `ONEHOUSE_ALLOWED_EMAILS`
 and try again.
+
+## Connecting from Claude (MCP)
+
+The grocery list is exposed to Claude (Desktop or claude.ai) as a remote MCP
+server at `/mcp`, secured with OAuth 2.1. Better Auth is the authorization
+server: Claude self-registers via Dynamic Client Registration, you sign in with
+Google and approve a consent screen (`/consent`), and Claude receives a scoped
+bearer token. Each tool call is recorded in the audit log as `{ userId, via: "mcp" }`.
+
+Tools: `grocery.list_items`, `grocery.add_item`, `grocery.mark_purchased`,
+`grocery.mark_pending`, `grocery.update_item`, `grocery.remove_item`.
+
+### Test locally with the MCP Inspector
+
+```bash
+pnpm dev                                  # Hono :3000 + Vite :5173
+pnpm dlx @modelcontextprotocol/inspector  # opens the Inspector UI
+```
+
+Connect to `http://localhost:5173/mcp` (transport: Streamable HTTP). The
+Inspector runs the OAuth flow in your browser — Google sign-in → `/consent` →
+back — then lists and calls the grocery tools. `localhost` is exempt from the
+MCP HTTPS requirement, so no TLS is needed locally.
+
+### Add it to Claude Desktop / claude.ai
+
+Settings → Connectors → "Add custom connector", URL `https://<your-domain>/mcp`.
+Set `BETTER_AUTH_URL=https://<your-domain>` and `MCP_HOST=<your-domain>` (behind
+Caddy). Claude finds the OAuth endpoints via
+`/.well-known/oauth-protected-resource`, registers itself, and walks you through
+the same Google sign-in + consent. Remote connectors require HTTPS.
 
 ## Common commands
 

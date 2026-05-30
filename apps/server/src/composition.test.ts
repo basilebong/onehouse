@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import type { CleanupScheduler } from "@onehouse/app-grocery/server";
 import { createGroceryService } from "@onehouse/app-grocery/server";
+import { createAuditRecorder } from "@onehouse/core/server";
 import type { Auth, Db } from "@onehouse/core/server";
 import { withTestAuth } from "@onehouse/core/server/test";
 import { createApp } from "./composition.ts";
@@ -17,7 +18,13 @@ const groceryFor = (db: Db) => ({
 });
 
 const appFor = (auth: Auth, db: Db, baseURL = "http://localhost:5173") =>
-  createApp({ auth, baseURL, grocery: groceryFor(db) });
+  createApp({
+    auth,
+    baseURL,
+    allowedHosts: ["localhost", "localhost:5173"],
+    audit: createAuditRecorder(db),
+    grocery: groceryFor(db),
+  });
 
 describe("composition", () => {
   test("GET /healthz returns ok", async () => {
@@ -70,6 +77,58 @@ describe("composition", () => {
         });
       },
     );
+  });
+
+  test("GET /.well-known/oauth-protected-resource advertises the MCP resource", async () => {
+    await withTestAuth({}, async ({ auth, db }) => {
+      const app = appFor(auth, db);
+      const res = await app.request("/.well-known/oauth-protected-resource");
+      expect(res.status).toBe(200);
+      expect(await res.json()).toEqual({
+        resource: "http://localhost:5173/mcp",
+        authorization_servers: ["http://localhost:5173/api/auth"],
+      });
+    });
+  });
+
+  test("GET /.well-known/oauth-authorization-server publishes the issuer + endpoints", async () => {
+    await withTestAuth({}, async ({ auth, db }) => {
+      const app = appFor(auth, db);
+      const res = await app.request("/.well-known/oauth-authorization-server");
+      expect(res.status).toBe(200);
+      expect(await res.json()).toMatchObject({
+        issuer: "http://localhost:5173/api/auth",
+        token_endpoint: "http://localhost:5173/api/auth/oauth2/token",
+        registration_endpoint: "http://localhost:5173/api/auth/oauth2/register",
+        code_challenge_methods_supported: ["S256"],
+      });
+    });
+  });
+
+  test("POST /mcp without a bearer token returns 401 with a WWW-Authenticate challenge", async () => {
+    await withTestAuth({}, async ({ auth, db }) => {
+      const app = appFor(auth, db);
+      const res = await app.request("/mcp", {
+        method: "POST",
+        headers: { "content-type": "application/json", host: "localhost:5173" },
+        body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "tools/list" }),
+      });
+      expect(res.status).toBe(401);
+      expect(res.headers.get("www-authenticate")).toContain("Bearer");
+    });
+  });
+
+  test("POST /mcp from a disallowed Host is rejected by the DNS-rebinding guard", async () => {
+    await withTestAuth({}, async ({ auth, db }) => {
+      const app = appFor(auth, db);
+      const res = await app.request("/mcp", {
+        method: "POST",
+        headers: { "content-type": "application/json", host: "evil.example.com" },
+        body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "tools/list" }),
+      });
+      expect(res.status).toBe(403);
+      expect(await res.json()).toEqual({ error: "forbidden_host" });
+    });
   });
 
   test("Google OAuth callback for a non-allowlisted email is rejected", async () => {

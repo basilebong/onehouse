@@ -19,6 +19,7 @@ export default defineConfig({
     proxy: {
       "/api": { target: apiTarget, ws: true, changeOrigin: true },
       "/mcp": { target: apiTarget, changeOrigin: true },
+      "/.well-known": { target: apiTarget, changeOrigin: true },
     },
   },
 });
