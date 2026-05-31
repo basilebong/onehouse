@@ -17,7 +17,7 @@ export const Wordmark = ({ size = "lg" }: WordmarkProps): React.ReactElement => 
         size === "lg" ? "text-[28px]" : "text-[20px]",
       )}
     >
-      OneHome
+      Hejmly
     </span>
   </div>
 );
