@@ -90,4 +90,5 @@ export const rowToSummary = (row: RecipeRow, author: AuthorRow): RecipeSummary =
   minutes: row.minutes,
   serves: row.serves,
   cook: toCook(author),
+  hasImage: row.image !== null,
 });

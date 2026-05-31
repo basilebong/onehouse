@@ -12,17 +12,19 @@ import * as v from "valibot";
 
 const CookSchema = v.object({ name: v.string(), initial: v.string() });
 
-const SummarySchema = v.object({
+const scalarEntries = {
   id: RecipeIdSchema,
   title: v.string(),
   category: RecipeCategorySchema,
   minutes: v.number(),
   serves: v.number(),
   cook: CookSchema,
-});
+};
+
+const SummarySchema = v.object({ ...scalarEntries, hasImage: v.boolean() });
 
 const RecipeSchema = v.object({
-  ...SummarySchema.entries,
+  ...scalarEntries,
   description: v.string(),
   image: v.nullable(v.string()),
   ingredients: v.array(IngredientInputSchema),
@@ -40,6 +42,9 @@ const parseJson = async <T>(res: Response, schema: v.GenericSchema<unknown, T>):
   const raw: unknown = await res.json();
   return v.parse(schema, raw);
 };
+
+export const recipeImageUrl = (id: RecipeId): string =>
+  `/api/recipes/${encodeURIComponent(id)}/image`;
 
 export const fetchRecipes = async (): Promise<RecipeSummary[]> => {
   const res = await fetch("/api/recipes", { credentials: "include" });

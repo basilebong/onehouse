@@ -62,17 +62,20 @@ const sampleRecipe = (overrides: Partial<CreateRecipeInput> = {}): CreateRecipeI
   ...overrides,
 });
 
+const SAMPLE_IMAGE = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAQ==";
+
 const CookSchema = v.object({ name: v.string(), initial: v.string() });
-const SummarySchema = v.object({
+const scalarEntries = {
   id: v.string(),
   title: v.string(),
   category: v.picklist(["Starter", "Main", "Dessert", "Other"]),
   minutes: v.number(),
   serves: v.number(),
   cook: CookSchema,
-});
+};
+const SummarySchema = v.object({ ...scalarEntries, hasImage: v.boolean() });
 const RecipeSchema = v.object({
-  ...SummarySchema.entries,
+  ...scalarEntries,
   description: v.string(),
   image: v.nullable(v.string()),
   ingredients: v.array(
@@ -121,6 +124,7 @@ describe("recipe routes", () => {
         const probes: Array<{ method: string; path: string; body?: unknown }> = [
           { method: "GET", path: "/api/recipes" },
           { method: "GET", path: "/api/recipes/some-id" },
+          { method: "GET", path: "/api/recipes/some-id/image" },
           { method: "POST", path: "/api/recipes", body: sampleRecipe() },
           { method: "PUT", path: "/api/recipes/some-id", body: sampleRecipe() },
           { method: "DELETE", path: "/api/recipes/some-id" },
@@ -155,6 +159,19 @@ describe("recipe routes", () => {
         const res = await app.request("/api/recipes", { headers: { cookie } });
         const payload = await parseJsonBody(res, RecipeListSchema);
         expect(payload.recipes.map((r) => r.id)).toEqual([second.id, first.id]);
+      });
+    });
+
+    test("summaries report whether the recipe has an image", async () => {
+      await withRecipes(async ({ app, cookie }) => {
+        await postRecipe(app, cookie, sampleRecipe({ title: "With photo", image: SAMPLE_IMAGE }));
+        await new Promise((r) => setTimeout(r, 5));
+        await postRecipe(app, cookie, sampleRecipe({ title: "No photo" }));
+        const res = await app.request("/api/recipes", { headers: { cookie } });
+        const payload = await parseJsonBody(res, RecipeListSchema);
+        const byTitle = new Map(payload.recipes.map((r) => [r.title, r.hasImage]));
+        expect(byTitle.get("With photo")).toBe(true);
+        expect(byTitle.get("No photo")).toBe(false);
       });
     });
   });
@@ -244,6 +261,52 @@ describe("recipe routes", () => {
       await withRecipes(async ({ app, cookie }) => {
         const res = await app.request("/api/recipes/does-not-exist", { headers: { cookie } });
         expect(res.status).toBe(404);
+      });
+    });
+  });
+
+  describe("GET /:id/image", () => {
+    test("serves the decoded image bytes with the stored content type", async () => {
+      await withRecipes(async ({ app, cookie }) => {
+        const created = await postRecipe(app, cookie, sampleRecipe({ image: SAMPLE_IMAGE }));
+        const res = await app.request(`/api/recipes/${created.id}/image`, { headers: { cookie } });
+        expect(res.status).toBe(200);
+        expect(res.headers.get("content-type")).toBe("image/jpeg");
+        const body = new Uint8Array(await res.arrayBuffer());
+        const expected = new Uint8Array(Buffer.from(SAMPLE_IMAGE.split(",")[1] ?? "", "base64"));
+        expect(body).toEqual(expected);
+      });
+    });
+
+    test("returns 404 when the recipe has no image", async () => {
+      await withRecipes(async ({ app, cookie }) => {
+        const created = await postRecipe(app, cookie, sampleRecipe());
+        const res = await app.request(`/api/recipes/${created.id}/image`, { headers: { cookie } });
+        expect(res.status).toBe(404);
+      });
+    });
+
+    test("returns 404 for an unknown recipe", async () => {
+      await withRecipes(async ({ app, cookie }) => {
+        const res = await app.request("/api/recipes/does-not-exist/image", {
+          headers: { cookie },
+        });
+        expect(res.status).toBe(404);
+      });
+    });
+
+    test("revalidates with an ETag and answers 304 when it matches", async () => {
+      await withRecipes(async ({ app, cookie }) => {
+        const created = await postRecipe(app, cookie, sampleRecipe({ image: SAMPLE_IMAGE }));
+        const first = await app.request(`/api/recipes/${created.id}/image`, {
+          headers: { cookie },
+        });
+        const etag = first.headers.get("etag");
+        expect(etag).not.toBeNull();
+        const second = await app.request(`/api/recipes/${created.id}/image`, {
+          headers: { cookie, "if-none-match": etag ?? "" },
+        });
+        expect(second.status).toBe(304);
       });
     });
   });

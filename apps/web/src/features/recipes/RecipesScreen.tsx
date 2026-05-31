@@ -6,7 +6,7 @@ import { Link } from "@tanstack/react-router";
 import { type ReactElement, useMemo, useState } from "react";
 
 import { BottomNav } from "@/components/BottomNav";
-import { fetchRecipes } from "@/lib/recipes-api";
+import { fetchRecipes, recipeImageUrl } from "@/lib/recipes-api";
 
 const RECIPES_QUERY_KEY = ["recipes", "list"] as const;
 
@@ -134,7 +134,10 @@ export const RecipesScreen = (): ReactElement => {
                   params={{ recipeId: recipe.id }}
                   className="block rounded-xl transition active:bg-slate-50"
                 >
-                  <RecipeCard recipe={recipe} />
+                  <RecipeCard
+                    recipe={recipe}
+                    imageSrc={recipe.hasImage ? recipeImageUrl(recipe.id) : null}
+                  />
                 </Link>
               ))}
             </div>

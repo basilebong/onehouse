@@ -439,12 +439,12 @@ const ReadView = ({
             </button>
           </div>
         </div>
-        <div className="px-5 pb-1">
-          <Hero recipe={recipe} className="h-40 w-full rounded-2xl" />
-        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto bg-white">
+        <div className="px-5 pb-1">
+          <Hero recipe={recipe} className="h-40 w-full rounded-2xl" />
+        </div>
         <div className="px-5 pt-3">
           <h1 className="font-semibold text-[22px] text-slate-900 leading-tight tracking-tight">
             {recipe.title}

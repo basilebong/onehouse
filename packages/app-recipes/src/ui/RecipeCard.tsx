@@ -4,11 +4,21 @@ import { type RecipeSummary, formatMinutes } from "../shared/index.ts";
 import { Avatar } from "./Avatar.tsx";
 import { PhotoPlaceholder } from "./PhotoPlaceholder.tsx";
 
-type RecipeCardProps = { recipe: RecipeSummary };
+type RecipeCardProps = { recipe: RecipeSummary; imageSrc: string | null };
 
-export const RecipeCard = ({ recipe }: RecipeCardProps): ReactElement => (
+export const RecipeCard = ({ recipe, imageSrc }: RecipeCardProps): ReactElement => (
   <div className="flex items-center gap-3.5 py-3">
-    <PhotoPlaceholder label="" className="size-16 shrink-0 rounded-xl" />
+    {imageSrc === null ? (
+      <PhotoPlaceholder label="" className="size-16 shrink-0 rounded-xl" />
+    ) : (
+      <img
+        src={imageSrc}
+        alt=""
+        loading="lazy"
+        decoding="async"
+        className="size-16 shrink-0 rounded-xl bg-slate-100 object-cover"
+      />
+    )}
     <div className="min-w-0 flex-1">
       <div className="truncate font-semibold text-[15px] text-slate-900 leading-tight">
         {recipe.title}

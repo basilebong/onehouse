@@ -37,6 +37,7 @@ export type RecipeSummary = {
   minutes: number;
   serves: number;
   cook: Cook;
+  hasImage: boolean;
 };
 
 export const toSummary = (recipe: Recipe): RecipeSummary => ({
@@ -46,4 +47,5 @@ export const toSummary = (recipe: Recipe): RecipeSummary => ({
   minutes: recipe.minutes,
   serves: recipe.serves,
   cook: recipe.cook,
+  hasImage: recipe.image !== null,
 });

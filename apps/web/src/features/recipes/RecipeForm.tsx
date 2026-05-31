@@ -369,7 +369,7 @@ export const RecipeForm = ({
                   value={row.name}
                   onChange={(e) => setIngredient(index, { name: e.currentTarget.value })}
                   placeholder="Ingredient"
-                  className="min-h-11 flex-1 rounded-xl border border-slate-200 bg-white px-3.5 text-base text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-slate-900"
+                  className="min-h-11 min-w-0 flex-1 rounded-xl border border-slate-200 bg-white px-3.5 text-base text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-slate-900"
                 />
                 <input
                   type="text"
@@ -421,7 +421,7 @@ export const RecipeForm = ({
                       value={row.title}
                       onChange={(e) => setStep(index, { title: e.currentTarget.value })}
                       placeholder="Step title"
-                      className="min-h-11 flex-1 rounded-xl border border-slate-200 bg-white px-3.5 text-base text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-slate-900"
+                      className="min-h-11 min-w-0 flex-1 rounded-xl border border-slate-200 bg-white px-3.5 text-base text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-slate-900"
                     />
                     {steps.length > 1 && (
                       <RemoveButton
