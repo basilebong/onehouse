@@ -149,6 +149,30 @@ You are working in a pnpm-workspaces monorepo. Loaded every session.
     hatch from rule 1 is the one exception.
     See `.claude/rules/comments.md` for examples.
 
+16. NEVER GUESS, AND NEVER BE LAZY. Two linked failure modes.
+    GUESSING: if a fact isn't directly verifiable from the code, the library
+    source, or observed behavior, you do not assert it. You VERIFY (write a
+    test, run it, read the dependency in `node_modules`) or you ASK. This is
+    rule 10 restated because it is the most-violated rule: "I think it works"
+    is a bug. State uncertainty plainly.
+    LAZINESS: when you hit friction, the answer is the correct fix, not a
+    workaround that hides the problem.
+    - Do NOT make a check pass by avoiding it: no excluding files from
+      typecheck/lint, no loosening `tsconfig`/`biome.json`, no deleting or
+      skipping a test to dodge a failure, no "temporary" hack. (This is the
+      spirit of rule 14, beyond inline directives.)
+    - Fix the root cause, not the symptom. If your own earlier mistake
+      created the friction, undo the mistake — do not build scaffolding
+      around it.
+    - "It compiles / the test passes" is NOT the bar. The bar is: would a
+      careful senior reviewer accept this as the right solution rather than a
+      shortcut? If not, it is not done.
+    - If the right way is large, unclear, or has real trade-offs, STOP and
+      ask (rule 10d) — lay out the correct approach and its cost. Never
+      silently take the cheap path to look finished.
+    Laziness is a failure mode, like sycophancy (rule 11). Cost = tech debt
+    and shipped bugs.
+
 ## See also
 - `.claude/rules/types.md`
 - `.claude/rules/testing.md`
