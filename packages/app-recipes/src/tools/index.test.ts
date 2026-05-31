@@ -112,6 +112,33 @@ describe("recipe MCP tools", () => {
     });
   });
 
+  test("list reports whether each recipe has an image", async () => {
+    await withTestAuth({ allowedEmails: TEST_EMAIL }, async ({ auth, db }) => {
+      const actor = await seedUser(auth);
+      const service = createRecipeService(db);
+      const image = "data:image/png;base64,iVBORw0KGgo=";
+      const seeded = await service.create(
+        v.parse(CreateRecipeInputSchema, { ...ADD_ARGS, title: "With photo", image }),
+        actor,
+      );
+      if (seeded.kind === "err") throw new Error("failed to seed recipe with image");
+
+      const client = await connect(db, actor);
+      await client.callTool({
+        name: "recipes__add",
+        arguments: { ...ADD_ARGS, title: "No photo" },
+      });
+      const list = await client.callTool({ name: "recipes__list", arguments: {} });
+      const ListSchema = v.object({
+        recipes: v.array(v.object({ title: v.string(), hasImage: v.boolean() })),
+      });
+      const parsed = v.parse(ListSchema, list.structuredContent);
+      const byTitle = new Map(parsed.recipes.map((r) => [r.title, r.hasImage]));
+      expect(byTitle.get("With photo")).toBe(true);
+      expect(byTitle.get("No photo")).toBe(false);
+    });
+  });
+
   test("update replaces the recipe", async () => {
     await withTestAuth({ allowedEmails: TEST_EMAIL }, async ({ auth, db }) => {
       const client = await connect(db, await seedUser(auth));

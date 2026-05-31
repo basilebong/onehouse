@@ -39,13 +39,3 @@ export type RecipeSummary = {
   cook: Cook;
   hasImage: boolean;
 };
-
-export const toSummary = (recipe: Recipe): RecipeSummary => ({
-  id: recipe.id,
-  title: recipe.title,
-  category: recipe.category,
-  minutes: recipe.minutes,
-  serves: recipe.serves,
-  cook: recipe.cook,
-  hasImage: recipe.image !== null,
-});

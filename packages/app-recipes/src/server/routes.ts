@@ -5,6 +5,7 @@ import { match } from "ts-pattern";
 import * as v from "valibot";
 import {
   CreateRecipeInputSchema,
+  IMAGE_DATA_URL_RE,
   type RecipeError,
   type RecipeId,
   RecipeIdSchema,
@@ -45,7 +46,6 @@ const tryParseRecipeId = (raw: string | undefined): RecipeId | null => {
 const invalidInput = (message = "Invalid input") =>
   ({ kind: "invalid_input" as const, message }) as const;
 
-const IMAGE_DATA_URL_RE = /^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/]+={0,2})$/;
 const IMAGE_CACHE_CONTROL = "private, max-age=0, must-revalidate";
 
 const decodeImageDataUrl = (value: string): { mime: string; bytes: Uint8Array } | null => {

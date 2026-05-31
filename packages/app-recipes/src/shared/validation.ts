@@ -28,10 +28,12 @@ export const ServesSchema = v.pipe(v.number(), v.integer(), v.minValue(1), v.max
 
 export const MAX_IMAGE_DATA_URL_LENGTH = 600_000;
 
+export const IMAGE_DATA_URL_RE = /^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/]+={0,2})$/;
+
 export const ImageDataUrlSchema = v.pipe(
   v.string(),
   v.maxLength(MAX_IMAGE_DATA_URL_LENGTH, "Image is too large"),
-  v.regex(/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/]+={0,2}$/, "Unsupported image"),
+  v.regex(IMAGE_DATA_URL_RE, "Unsupported image"),
 );
 
 export const IngredientInputSchema = v.object({
