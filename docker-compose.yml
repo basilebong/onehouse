@@ -4,7 +4,7 @@ services:
     build:
       context: .
       target: runtime
-    image: onehouse:latest
+    image: hejmly:latest
     restart: always
     volumes:
       - ./data:/data

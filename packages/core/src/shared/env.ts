@@ -28,7 +28,7 @@ const envSchema = v.object({
   GOOGLE_SECRET: v.optional(nonEmptySchema),
   MCP_HOST: v.optional(nonEmptySchema),
   DATABASE_PATH: v.optional(nonEmptySchema),
-  ONEHOUSE_ALLOWED_EMAILS: v.optional(nonEmptySchema),
+  HEJMLY_ALLOWED_EMAILS: v.optional(nonEmptySchema),
 });
 
 export type Env = v.InferOutput<typeof envSchema>;
@@ -43,7 +43,7 @@ const runtimeEnvSchema = v.object({
   GOOGLE_ID: nonEmptySchema,
   GOOGLE_SECRET: nonEmptySchema,
   DATABASE_PATH: nonEmptySchema,
-  ONEHOUSE_ALLOWED_EMAILS: nonEmptySchema,
+  HEJMLY_ALLOWED_EMAILS: nonEmptySchema,
   MCP_HOST: v.optional(nonEmptySchema),
 });
 

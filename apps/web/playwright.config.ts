@@ -1,4 +1,4 @@
-import { parseEnv } from "@onehouse/core/shared";
+import { parseEnv } from "@hejmly/core/shared";
 import { defineConfig, devices } from "@playwright/test";
 
 const env = parseEnv(process.env);

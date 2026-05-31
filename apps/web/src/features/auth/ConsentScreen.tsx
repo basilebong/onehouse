@@ -67,8 +67,8 @@ export const ConsentScreen = (): React.ReactElement => {
         </h1>
         <p className="mt-3 max-w-[300px] text-[15px] text-slate-500 leading-relaxed">
           {appLabel === undefined
-            ? "An application wants to connect to your Onehouse account."
-            : `“${appLabel}” wants to connect to your Onehouse account.`}
+            ? "An application wants to connect to your Hejmly account."
+            : `“${appLabel}” wants to connect to your Hejmly account.`}
         </p>
 
         {scopes.length > 0 ? (

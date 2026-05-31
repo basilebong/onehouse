@@ -1,7 +1,7 @@
-import type { Db } from "@onehouse/core/server";
-import { desc, eq } from "@onehouse/core/server/drizzle";
-import { users } from "@onehouse/core/server/schema";
-import { type Result, type UserId, err, ok } from "@onehouse/core/shared";
+import type { Db } from "@hejmly/core/server";
+import { desc, eq } from "@hejmly/core/server/drizzle";
+import { users } from "@hejmly/core/server/schema";
+import { type Result, type UserId, err, ok } from "@hejmly/core/shared";
 import { ulid } from "ulid";
 import {
   type CreateRecipeInput,

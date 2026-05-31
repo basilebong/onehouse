@@ -6,8 +6,8 @@ Each `packages/app-*` exports four entry points:
 
 | Path        | Browser? | May import                                                       |
 |-------------|----------|------------------------------------------------------------------|
-| `./shared`  | yes      | `@onehouse/core/shared`, isomorphic libs (valibot, ts-pattern, ulid) |
-| `./server`  | no       | `./shared`, `@onehouse/core/server`, Drizzle, Hono, `bun:sqlite` |
+| `./shared`  | yes      | `@hejmly/core/shared`, isomorphic libs (valibot, ts-pattern, ulid) |
+| `./server`  | no       | `./shared`, `@hejmly/core/server`, Drizzle, Hono, `bun:sqlite` |
 | `./tools`   | no       | `./shared`, `./server`, `@modelcontextprotocol/sdk`, Zod         |
 | `./ui`      | yes      | `./shared`, React, shadcn primitives, Phosphor, Vaul             |
 
@@ -25,7 +25,7 @@ If your "shared" function needs the DB, it isn't shared — split it.
 
 ## Core vs app
 
-- `@onehouse/core` contains platform plumbing: auth, db wiring, MCP transport,
+- `@hejmly/core` contains platform plumbing: auth, db wiring, MCP transport,
   audit log, branded IDs, Result, middleware.
 - Per-app code lives in `packages/app-<name>`. Cross-app helpers do not exist.
   If two apps need the same thing, promote it to `core` only after a clear
@@ -47,7 +47,7 @@ core/server  → core/shared
 ```
 
 `apps/server` may not import from `apps/web` and vice versa — they share state
-only through `@onehouse/core/shared` types and the HTTP RPC client.
+only through `@hejmly/core/shared` types and the HTTP RPC client.
 
 ## How to check
 

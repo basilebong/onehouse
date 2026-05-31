@@ -1,7 +1,7 @@
-import type { CleanupScheduler, GroceryService } from "@onehouse/app-grocery/server";
-import { createGroceryRoutes } from "@onehouse/app-grocery/server";
-import type { RecipeService } from "@onehouse/app-recipes/server";
-import { createRecipeRoutes } from "@onehouse/app-recipes/server";
+import type { CleanupScheduler, GroceryService } from "@hejmly/app-grocery/server";
+import { createGroceryRoutes } from "@hejmly/app-grocery/server";
+import type { RecipeService } from "@hejmly/app-recipes/server";
+import { createRecipeRoutes } from "@hejmly/app-recipes/server";
 import {
   type AssistantsService,
   type AuditRecorder,
@@ -10,7 +10,7 @@ import {
   createAssistantsRoutes,
   createIdempotency,
   createRequireSession,
-} from "@onehouse/core/server";
+} from "@hejmly/core/server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";

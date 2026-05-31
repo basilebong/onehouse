@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { isErr, isOk, parseUserId } from "@onehouse/core/shared";
+import { isErr, isOk, parseUserId } from "@hejmly/core/shared";
 import { type GroceryStatus, transition } from "./state.ts";
 
 const U1 = parseUserId("u1");

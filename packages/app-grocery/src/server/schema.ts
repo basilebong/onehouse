@@ -1,5 +1,5 @@
-import { index, integer, sqliteTable, text } from "@onehouse/core/server/drizzle";
-import { users } from "@onehouse/core/server/schema";
+import { index, integer, sqliteTable, text } from "@hejmly/core/server/drizzle";
+import { users } from "@hejmly/core/server/schema";
 
 export const groceryItems = sqliteTable(
   "grocery_items",

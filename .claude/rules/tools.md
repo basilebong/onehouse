@@ -12,7 +12,7 @@ AND two community projects we trust have migrated.
 Streamable HTTP at `/mcp`, via the SDK's `WebStandardStreamableHTTPServerTransport`
 (Web-standard `Request`/`Response`, native to Bun + Hono — no Node `req`/`res`
 shim). A fresh stateless transport + `McpServer` is created per request by
-`runMcpRequest` in `@onehouse/core/server`. stdio is for processes Claude
+`runMcpRequest` in `@hejmly/core/server`. stdio is for processes Claude
 Desktop spawns locally; this server lives in a container.
 
 DNS-rebinding protection is non-negotiable. The SDK deprecated its built-in
@@ -34,7 +34,7 @@ self-register via Dynamic Client Registration, then run the PKCE (S256)
 authorization-code flow. The user signs in with Google (the existing social
 provider) and approves the `/consent` screen.
 
-`/mcp` is protected by `createMcpAuthGuard` in `@onehouse/core/server` (a thin
+`/mcp` is protected by `createMcpAuthGuard` in `@hejmly/core/server` (a thin
 wrapper over `mcpHandler` from `@better-auth/oauth-provider`): it verifies the
 Bearer JWT against our JWKS (`/api/auth/jwks`), checks issuer + audience, and
 yields `jwt.sub` (the `UserId`). Every tool call records `{ userId, via: "mcp" }`
@@ -79,7 +79,7 @@ the `.` MCP itself would otherwise permit.
 ## Versioning
 
 ```ts
-new McpServer({ name: "onehouse", version: "1.0.0" });
+new McpServer({ name: "Hejmly", version: "1.0.0" });
 ```
 
 SemVer:

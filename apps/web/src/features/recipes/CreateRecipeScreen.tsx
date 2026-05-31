@@ -4,7 +4,7 @@ import { type ReactElement, useRef } from "react";
 import { toast } from "sonner";
 
 import { createRecipe } from "@/lib/recipes-api";
-import type { CreateRecipeInput } from "@onehouse/app-recipes/shared";
+import type { CreateRecipeInput } from "@hejmly/app-recipes/shared";
 import { RecipeForm } from "./RecipeForm";
 
 export const CreateRecipeScreen = (): ReactElement => {

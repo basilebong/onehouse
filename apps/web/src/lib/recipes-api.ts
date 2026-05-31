@@ -7,7 +7,7 @@ import {
   RecipeIdSchema,
   type RecipeSummary,
   StepInputSchema,
-} from "@onehouse/app-recipes/shared";
+} from "@hejmly/app-recipes/shared";
 import * as v from "valibot";
 
 const CookSchema = v.object({ name: v.string(), initial: v.string() });

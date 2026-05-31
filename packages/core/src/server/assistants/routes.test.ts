@@ -32,7 +32,7 @@ const seedSessionCookie = async (
   const user = await ctx.internalAdapter.createUser({ name: "Basile", email });
   const session = await ctx.internalAdapter.createSession(user.id);
   const signed = await signSessionCookie(session.token);
-  return { userId: user.id, cookie: `onehouse.session_token=${signed}` };
+  return { userId: user.id, cookie: `Hejmly.session_token=${signed}` };
 };
 
 const seedConsent = async (

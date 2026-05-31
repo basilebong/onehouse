@@ -1,4 +1,4 @@
-import { type CreateRecipeInput, type Recipe, RecipeIdSchema } from "@onehouse/app-recipes/shared";
+import { type CreateRecipeInput, type Recipe, RecipeIdSchema } from "@hejmly/app-recipes/shared";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
 import type { ReactElement } from "react";

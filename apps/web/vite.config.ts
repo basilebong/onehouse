@@ -1,5 +1,5 @@
 import { resolve } from "node:path";
-import { parseEnv } from "@onehouse/core/shared";
+import { parseEnv } from "@hejmly/core/shared";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
@@ -26,7 +26,7 @@ const apiMutationRoute = (method: (typeof MUTATION_METHODS)[number]) => ({
   method,
   options: {
     backgroundSync: {
-      name: `onehouse-mutations-${method.toLowerCase()}`,
+      name: `Hejmly-mutations-${method.toLowerCase()}`,
       options: { maxRetentionTime: 24 * 60 },
     },
   },
@@ -34,7 +34,7 @@ const apiMutationRoute = (method: (typeof MUTATION_METHODS)[number]) => ({
 
 export default defineConfig({
   define: {
-    __PERSIST_BUSTER__: JSON.stringify(`onehouse-${Date.now()}`),
+    __PERSIST_BUSTER__: JSON.stringify(`Hejmly-${Date.now()}`),
   },
   build: {
     rollupOptions: {
@@ -51,8 +51,8 @@ export default defineConfig({
       injectRegister: "auto",
       includeAssets: ["favicon.ico", "favicon.svg", "apple-touch-icon.png"],
       manifest: {
-        name: "Onehouse",
-        short_name: "Onehouse",
+        name: "Hejmly",
+        short_name: "Hejmly",
         description: "Family app platform — internal only.",
         id: "/",
         start_url: "/",

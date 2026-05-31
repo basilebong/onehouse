@@ -1,5 +1,5 @@
 {
-  "name": "@onehouse/app-recipes",
+  "name": "@hejmly/app-recipes",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.29.0",
-    "@onehouse/core": "workspace:*",
+    "@hejmly/core": "workspace:*",
     "clsx": "2.1.1",
     "hono": "4.12.21",
     "tailwind-merge": "2.5.5",

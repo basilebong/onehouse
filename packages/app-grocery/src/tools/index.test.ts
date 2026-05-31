@@ -1,11 +1,11 @@
 import { describe, expect, test } from "bun:test";
+import { createAuditRecorder } from "@hejmly/core/server";
+import type { AuditRecorder, Auth, Db } from "@hejmly/core/server";
+import { withTestAuth } from "@hejmly/core/server/test";
+import { type UserId, parseUserId } from "@hejmly/core/shared";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { createAuditRecorder } from "@onehouse/core/server";
-import type { AuditRecorder, Auth, Db } from "@onehouse/core/server";
-import { withTestAuth } from "@onehouse/core/server/test";
-import { type UserId, parseUserId } from "@onehouse/core/shared";
 import type { CleanupScheduler } from "../server/index.ts";
 import { createGroceryService } from "../server/index.ts";
 import { type GroceryItemId, parseGroceryItemId } from "../shared/index.ts";
@@ -42,7 +42,7 @@ const connect = async (
   actor: UserId,
   cleanup: CleanupScheduler = noopCleanup,
 ): Promise<Client> => {
-  const server = new McpServer({ name: "onehouse-test", version: "1.0.0" });
+  const server = new McpServer({ name: "Hejmly-test", version: "1.0.0" });
   registerGroceryTools(server, {
     service: createGroceryService(db),
     actor,
@@ -197,7 +197,7 @@ describe("grocery MCP tools", () => {
           throw new Error("audit unavailable");
         },
       };
-      const server = new McpServer({ name: "onehouse-test", version: "1.0.0" });
+      const server = new McpServer({ name: "Hejmly-test", version: "1.0.0" });
       registerGroceryTools(server, {
         service: createGroceryService(db),
         actor,

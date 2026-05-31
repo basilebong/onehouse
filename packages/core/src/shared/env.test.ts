@@ -13,12 +13,12 @@ describe("parseEnv", () => {
     expect(env.GOOGLE_SECRET).toBeUndefined();
     expect(env.MCP_HOST).toBeUndefined();
     expect(env.DATABASE_PATH).toBeUndefined();
-    expect(env.ONEHOUSE_ALLOWED_EMAILS).toBeUndefined();
+    expect(env.HEJMLY_ALLOWED_EMAILS).toBeUndefined();
   });
 
-  test("ONEHOUSE_ALLOWED_EMAILS passes through as a raw string", () => {
-    const env = parseEnv({ ONEHOUSE_ALLOWED_EMAILS: "a@example.com,b@example.com" });
-    expect(env.ONEHOUSE_ALLOWED_EMAILS).toBe("a@example.com,b@example.com");
+  test("HEJMLY_ALLOWED_EMAILS passes through as a raw string", () => {
+    const env = parseEnv({ HEJMLY_ALLOWED_EMAILS: "a@example.com,b@example.com" });
+    expect(env.HEJMLY_ALLOWED_EMAILS).toBe("a@example.com,b@example.com");
   });
 
   test("parses PORT as integer", () => {

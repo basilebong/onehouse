@@ -1,4 +1,4 @@
-# @onehouse/core
+# @hejmly/core
 
 Platform plumbing. Two subpath exports:
 

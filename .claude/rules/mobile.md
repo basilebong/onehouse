@@ -33,7 +33,7 @@ If you reached for `Dialog` on a mobile screen, you failed.
 
 ## State
 - [ ] Mutations optimistic; rollback via TanStack Query.
-- [ ] `transition()` from `@onehouse/app-*/shared` used for optimistic
+- [ ] `transition()` from `@hejmly/app-*/shared` used for optimistic
       computation — do not hand-roll.
 - [ ] Errors toast via Sonner; no silent failures.
 - [ ] Loading = skeleton matching final layout (no shift).

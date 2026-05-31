@@ -2,12 +2,12 @@ import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import type { CleanupScheduler } from "@onehouse/app-grocery/server";
-import { createGroceryService } from "@onehouse/app-grocery/server";
-import { createRecipeService } from "@onehouse/app-recipes/server";
-import { createAssistantsService, createAuditRecorder } from "@onehouse/core/server";
-import type { Auth, Db } from "@onehouse/core/server";
-import { withTestAuth } from "@onehouse/core/server/test";
+import type { CleanupScheduler } from "@hejmly/app-grocery/server";
+import { createGroceryService } from "@hejmly/app-grocery/server";
+import { createRecipeService } from "@hejmly/app-recipes/server";
+import { createAssistantsService, createAuditRecorder } from "@hejmly/core/server";
+import type { Auth, Db } from "@hejmly/core/server";
+import { withTestAuth } from "@hejmly/core/server/test";
 import { createApp } from "./composition.ts";
 
 const noopCleanup: CleanupScheduler = {
@@ -19,9 +19,9 @@ const noopCleanup: CleanupScheduler = {
 let distRoot: string;
 
 beforeAll(() => {
-  distRoot = mkdtempSync(join(tmpdir(), "onehouse-compose-dist-"));
+  distRoot = mkdtempSync(join(tmpdir(), "hejmly-compose-dist-"));
   mkdirSync(join(distRoot, "assets"));
-  writeFileSync(join(distRoot, "index.html"), "<!doctype html><title>onehouse</title>");
+  writeFileSync(join(distRoot, "index.html"), "<!doctype html><title>hejmly</title>");
 });
 
 afterAll(() => {
@@ -89,7 +89,7 @@ describe("composition", () => {
 
         const app = appFor(auth, db);
         const res = await app.request("/api/me", {
-          headers: { cookie: `onehouse.session_token=${signed}` },
+          headers: { cookie: `Hejmly.session_token=${signed}` },
         });
 
         expect(res.status).toBe(200);
@@ -122,7 +122,7 @@ describe("composition", () => {
 
         const app = appFor(auth, db);
         const res = await app.request("/api/me/assistants", {
-          headers: { cookie: `onehouse.session_token=${signed}` },
+          headers: { cookie: `Hejmly.session_token=${signed}` },
         });
 
         expect(res.status).toBe(200);
@@ -189,7 +189,7 @@ describe("composition", () => {
       const res = await app.request("/");
       expect(res.status).toBe(200);
       expect(res.headers.get("content-type")).toContain("text/html");
-      expect(await res.text()).toContain("<title>onehouse</title>");
+      expect(await res.text()).toContain("<title>hejmly</title>");
     });
   });
 

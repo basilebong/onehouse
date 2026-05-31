@@ -1,5 +1,5 @@
 {
-  "name": "@onehouse/app-grocery",
+  "name": "@hejmly/app-grocery",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.29.0",
-    "@onehouse/core": "workspace:*",
+    "@hejmly/core": "workspace:*",
     "@radix-ui/react-dropdown-menu": "2.1.16",
     "bunqueue": "2.7.14",
     "clsx": "2.1.1",

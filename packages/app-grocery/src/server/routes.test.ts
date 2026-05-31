@@ -4,8 +4,8 @@ import {
   type Db,
   type SessionVariables,
   createRequireSession,
-} from "@onehouse/core/server";
-import { withTestAuth } from "@onehouse/core/server/test";
+} from "@hejmly/core/server";
+import { withTestAuth } from "@hejmly/core/server/test";
 import { Hono } from "hono";
 import * as v from "valibot";
 import { type GroceryItemId, parseGroceryItemId } from "../shared/index.ts";
@@ -56,7 +56,7 @@ const seedSessionCookie = async (
   });
   const session = await ctx.internalAdapter.createSession(user.id);
   const signed = await signSessionCookie(session.token);
-  return { userId: user.id, cookie: `onehouse.session_token=${signed}` };
+  return { userId: user.id, cookie: `Hejmly.session_token=${signed}` };
 };
 
 const withGrocery = async (fn: (ctx: GroceryTestContext) => Promise<void>): Promise<void> => {

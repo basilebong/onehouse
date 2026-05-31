@@ -50,7 +50,7 @@ match(value)
 
 ## Result over throw — at module boundaries
 
-Services return `Result<T, AppError>` (`@onehouse/core/shared`). Routes may
+Services return `Result<T, AppError>` (`@hejmly/core/shared`). Routes may
 throw; the global `onError` handler maps known errors to status codes.
 
 ## tsconfig

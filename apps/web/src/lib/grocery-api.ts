@@ -4,8 +4,8 @@ import {
   type GroceryItemId,
   GroceryItemIdSchema,
   type UpdateItemInput,
-} from "@onehouse/app-grocery/shared";
-import { UserIdSchema } from "@onehouse/core/shared";
+} from "@hejmly/app-grocery/shared";
+import { UserIdSchema } from "@hejmly/core/shared";
 import * as v from "valibot";
 
 const ItemSchema = v.object({

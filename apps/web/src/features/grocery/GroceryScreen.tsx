@@ -5,8 +5,8 @@ import type {
   GroceryItemId,
   GroceryTransition,
   UpdateItemInput,
-} from "@onehouse/app-grocery/shared";
-import { isPurchased, parseGroceryItemId, transition } from "@onehouse/app-grocery/shared";
+} from "@hejmly/app-grocery/shared";
+import { isPurchased, parseGroceryItemId, transition } from "@hejmly/app-grocery/shared";
 import {
   AddItemForm,
   EditItemForm,
@@ -16,8 +16,8 @@ import {
   ListBody,
   ListSkeleton,
   TopBar,
-} from "@onehouse/app-grocery/ui";
-import { parseUserId } from "@onehouse/core/shared";
+} from "@hejmly/app-grocery/ui";
+import { parseUserId } from "@hejmly/core/shared";
 import { WarningCircleIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { type ReactElement, useEffect, useMemo, useRef, useState } from "react";

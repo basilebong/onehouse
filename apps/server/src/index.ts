@@ -1,14 +1,14 @@
 import { dirname, resolve } from "node:path";
-import { createCleanupScheduler, createGroceryService } from "@onehouse/app-grocery/server";
-import { createRecipeService } from "@onehouse/app-recipes/server";
+import { createCleanupScheduler, createGroceryService } from "@hejmly/app-grocery/server";
+import { createRecipeService } from "@hejmly/app-recipes/server";
 import {
   createAssistantsService,
   createAuditRecorder,
   createAuth,
   createDb,
   parseAllowedEmails,
-} from "@onehouse/core/server";
-import { parseRuntimeEnv } from "@onehouse/core/shared";
+} from "@hejmly/core/server";
+import { parseRuntimeEnv } from "@hejmly/core/shared";
 import { createApp } from "./composition.ts";
 
 const env = parseRuntimeEnv(process.env);
@@ -30,7 +30,7 @@ const auth = createAuth({
   baseURL: env.BETTER_AUTH_URL,
   secret: env.BETTER_AUTH_SECRET,
   google: { clientId: env.GOOGLE_ID, clientSecret: env.GOOGLE_SECRET },
-  allowedEmails: parseAllowedEmails(env.ONEHOUSE_ALLOWED_EMAILS),
+  allowedEmails: parseAllowedEmails(env.HEJMLY_ALLOWED_EMAILS),
   useSecureCookies: process.env.NODE_ENV === "production",
   mcpResource,
 });
@@ -63,7 +63,7 @@ let shuttingDown = false;
 const shutdown = async (signal: NodeJS.Signals): Promise<void> => {
   if (shuttingDown) return;
   shuttingDown = true;
-  console.info(`onehouse server received ${signal}, shutting down`);
+  console.info(`Hejmly server received ${signal}, shutting down`);
   await cleanup.close();
   await server.stop();
   process.exit(0);
@@ -72,4 +72,4 @@ const shutdown = async (signal: NodeJS.Signals): Promise<void> => {
 process.on("SIGINT", shutdown);
 process.on("SIGTERM", shutdown);
 
-console.info(`onehouse server listening on http://localhost:${env.PORT}`);
+console.info(`Hejmly server listening on http://localhost:${env.PORT}`);

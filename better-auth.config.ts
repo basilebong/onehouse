@@ -10,7 +10,7 @@ export const auth = createAuth({
     clientId: process.env.GOOGLE_ID ?? "placeholder",
     clientSecret: process.env.GOOGLE_SECRET ?? "placeholder",
   },
-  allowedEmails: parseAllowedEmails(process.env.ONEHOUSE_ALLOWED_EMAILS),
+  allowedEmails: parseAllowedEmails(process.env.HEJMLY_ALLOWED_EMAILS),
   useSecureCookies: false,
   mcpResource: `${process.env.BETTER_AUTH_URL ?? "http://localhost:5173"}/mcp`,
 });

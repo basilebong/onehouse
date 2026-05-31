@@ -1,4 +1,4 @@
-import type { CreateItemInput } from "@onehouse/app-grocery/shared";
+import type { CreateItemInput } from "@hejmly/app-grocery/shared";
 import {
   type Ingredient,
   type Recipe,
@@ -7,7 +7,7 @@ import {
   type TimerMap,
   defaultGrocerySelection,
   formatMinutes,
-} from "@onehouse/app-recipes/shared";
+} from "@hejmly/app-recipes/shared";
 import {
   Avatar,
   CookTimeButton,
@@ -19,7 +19,7 @@ import {
   TimerBar,
   exportRecipePdf,
   useTimers,
-} from "@onehouse/app-recipes/ui";
+} from "@hejmly/app-recipes/ui";
 import {
   ArrowLeftIcon,
   ArrowRightIcon,

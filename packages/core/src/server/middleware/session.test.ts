@@ -32,7 +32,7 @@ describe("createRequireSession", () => {
           .get("/me", (c) => c.json({ userId: c.get("user").id }));
 
         const res = await app.request("/me", {
-          headers: { cookie: `onehouse.session_token=${signed}` },
+          headers: { cookie: `Hejmly.session_token=${signed}` },
         });
         expect(res.status).toBe(200);
         expect(await res.json()).toEqual({ userId: user.id });

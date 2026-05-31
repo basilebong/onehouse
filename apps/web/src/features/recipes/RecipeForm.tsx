@@ -2,8 +2,8 @@ import {
   type CreateRecipeInput,
   RECIPE_CATEGORIES,
   type RecipeCategory,
-} from "@onehouse/app-recipes/shared";
-import { PhotoInput, TimerBar } from "@onehouse/app-recipes/ui";
+} from "@hejmly/app-recipes/shared";
+import { PhotoInput, TimerBar } from "@hejmly/app-recipes/ui";
 import { MinusIcon, PlusIcon, TimerIcon, XIcon } from "@phosphor-icons/react";
 import { type ReactElement, type ReactNode, useEffect, useState } from "react";
 import { toast } from "sonner";

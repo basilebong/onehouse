@@ -1,5 +1,5 @@
-import type { SessionVariables } from "@onehouse/core/server";
-import { parseUserId } from "@onehouse/core/shared";
+import type { SessionVariables } from "@hejmly/core/server";
+import { parseUserId } from "@hejmly/core/shared";
 import { Hono } from "hono";
 import { match } from "ts-pattern";
 import * as v from "valibot";

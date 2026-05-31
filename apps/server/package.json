@@ -1,5 +1,5 @@
 {
-  "name": "@onehouse/server",
+  "name": "@hejmly/server",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -11,9 +11,9 @@
     "test": "bun test"
   },
   "dependencies": {
-    "@onehouse/core": "workspace:*",
-    "@onehouse/app-grocery": "workspace:*",
-    "@onehouse/app-recipes": "workspace:*",
+    "@hejmly/core": "workspace:*",
+    "@hejmly/app-grocery": "workspace:*",
+    "@hejmly/app-recipes": "workspace:*",
     "hono": "4.12.21"
   },
   "devDependencies": {}

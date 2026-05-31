@@ -3,7 +3,7 @@
 React + Vite + TanStack + Tailwind v4 + PWA. Browser entry-point only.
 
 ## Hard rules
-- May only import `@onehouse/*/shared` and `@onehouse/*/ui`. Importing
+- May only import `@hejmly/*/shared` and `@hejmly/*/ui`. Importing
   `/server` or `/tools` from any file under `src/` is a build error and
   a review block.
 - shadcn primitives live under `src/components/ui/` — installed via
@@ -24,7 +24,7 @@ React + Vite + TanStack + Tailwind v4 + PWA. Browser entry-point only.
 - `src/components/`    — AppShell + app-wide layout (no Radix needed)
 - `src/components/ui/` — shadcn primitives (own copies, edit freely)
 - `src/components/form/` — TanStack Form wrappers
-- `src/features/<app>/` — feature wiring (imports `@onehouse/app-<app>/{shared,ui}`)
+- `src/features/<app>/` — feature wiring (imports `@hejmly/app-<app>/{shared,ui}`)
 - `src/lib/`           — `cn`, `api`, `auth-client`
 - `src/styles.css`     — `@import "tailwindcss";`
 - `public/`            — PWA manifest, icons, apple-touch-icon

@@ -37,7 +37,7 @@ export const createAuth = (opts: CreateAuthOptions) => {
   ];
 
   return betterAuth({
-    appName: "Onehouse",
+    appName: "Hejmly",
     baseURL: opts.baseURL,
     secret: opts.secret,
 
@@ -71,7 +71,7 @@ export const createAuth = (opts: CreateAuthOptions) => {
     },
 
     advanced: {
-      cookiePrefix: "onehouse",
+      cookiePrefix: "Hejmly",
       useSecureCookies: opts.useSecureCookies,
     },
 

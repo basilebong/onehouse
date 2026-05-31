@@ -1,4 +1,4 @@
-# Onehouse Family Platform — Agent Constitution
+# Hejmly Family Platform — Agent Constitution
 
 You are working in a pnpm-workspaces monorepo. Loaded every session.
 **If you violate any rule, STOP and ask.**
@@ -26,10 +26,10 @@ You are working in a pnpm-workspaces monorepo. Loaded every session.
 4. ALWAYS run `bun test` AND `bun run typecheck` before declaring done.
 5. ALL discriminated unions use `kind:` and ts-pattern `.exhaustive()`.
    No naked `switch` without `assertNever`.
-6. ALL IDs are branded types from `@onehouse/core/shared`. Never bare `string`.
+6. ALL IDs are branded types from `@hejmly/core/shared`. Never bare `string`.
 7. SERVICES return `Result<T, E>`. Routes may throw; global `onError` handles it.
 8. NEW APP = NEW PACKAGE under `packages/app-*`. Never put grocery code in
-   chores; never modify `@onehouse/core` for app-specific logic.
+   chores; never modify `@hejmly/core` for app-specific logic.
 9. RESPECT THE SUBPATH BOUNDARY. Code under `src/shared/` MUST run in the
    browser (no `bun:sqlite`, Drizzle, Hono, Node APIs). Adding a server-only
    import to a `shared/` file = build error + review block.
@@ -109,8 +109,8 @@ You are working in a pnpm-workspaces monorepo. Loaded every session.
 - Auth schema:     `bun run auth:generate`   then commit
 - DB migrations:   `bun run db:generate`     then commit `/drizzle`
 - UI components:   `bunx shadcn@latest add <name>`  in `apps/web`
-- Prod image:      `docker build -t onehouse .`
-- Prod run:        `docker run -v ./data:/data -p 3000:3000 onehouse`
+- Prod image:      `docker build -t hejmly .`
+- Prod run:        `docker run -v ./data:/data -p 3000:3000 hejmly`
 
 ## Where things live
 - `packages/core/src/shared`   → branded IDs, Result, isomorphic helpers

@@ -1,9 +1,9 @@
 import { describe, expect, test } from "bun:test";
-import type { CleanupScheduler } from "@onehouse/app-grocery/server";
-import { createGroceryService } from "@onehouse/app-grocery/server";
-import { createRecipeService } from "@onehouse/app-recipes/server";
-import { type Db, createAssistantsService, createAuditRecorder } from "@onehouse/core/server";
-import { withTestAuth } from "@onehouse/core/server/test";
+import type { CleanupScheduler } from "@hejmly/app-grocery/server";
+import { createGroceryService } from "@hejmly/app-grocery/server";
+import { createRecipeService } from "@hejmly/app-recipes/server";
+import { type Db, createAssistantsService, createAuditRecorder } from "@hejmly/core/server";
+import { withTestAuth } from "@hejmly/core/server/test";
 import { type AppType, createApp } from "./composition.ts";
 
 const noopCleanup: CleanupScheduler = {
@@ -81,7 +81,7 @@ const withMcpServer = async (run: (h: McpHarness) => Promise<void>): Promise<voi
           email: "basile@example.com",
         });
         const session = await adapter.internalAdapter.createSession(user.id);
-        const cookie = `onehouse.session_token=${await signSessionCookie(session.token)}`;
+        const cookie = `Hejmly.session_token=${await signSessionCookie(session.token)}`;
 
         app = createApp({
           auth,
@@ -89,7 +89,7 @@ const withMcpServer = async (run: (h: McpHarness) => Promise<void>): Promise<voi
           baseURL,
           jwksOrigin: baseURL,
           allowedHosts: [`localhost:${server.port}`],
-          staticRoot: "/nonexistent/onehouse-web-dist",
+          staticRoot: "/nonexistent/hejmly-web-dist",
           audit: createAuditRecorder(db),
           assistants: { service: createAssistantsService(db) },
           grocery: { service: createGroceryService(db), cleanup: noopCleanup },

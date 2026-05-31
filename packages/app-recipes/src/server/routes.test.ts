@@ -4,8 +4,8 @@ import {
   type Db,
   type SessionVariables,
   createRequireSession,
-} from "@onehouse/core/server";
-import { withTestAuth } from "@onehouse/core/server/test";
+} from "@hejmly/core/server";
+import { withTestAuth } from "@hejmly/core/server/test";
 import { Hono } from "hono";
 import * as v from "valibot";
 import type { CreateRecipeInput } from "../shared/index.ts";
@@ -26,7 +26,7 @@ const seedSessionCookie = async (
   const user = await ctx.internalAdapter.createUser({ name: "Basile", email: TEST_EMAIL });
   const session = await ctx.internalAdapter.createSession(user.id);
   const signed = await signSessionCookie(session.token);
-  return { userId: user.id, cookie: `onehouse.session_token=${signed}` };
+  return { userId: user.id, cookie: `Hejmly.session_token=${signed}` };
 };
 
 const withRecipes = async (fn: (ctx: RecipeTestContext) => Promise<void>): Promise<void> => {

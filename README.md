@@ -1,4 +1,4 @@
-# Onehouse
+# Hejmly
 
 ![status: WIP](https://img.shields.io/badge/status-WIP-orange) ![release: pre--v0](https://img.shields.io/badge/release-pre--v0-red)
 
@@ -134,7 +134,7 @@ any user row is created.
    GOOGLE_SECRET=<client secret>
    ```
 
-In production, repeat with your real public URL (e.g. `https://onehouse.example.de`).
+In production, repeat with your real public URL (e.g. `https://hejmly.example.de`).
 
 ### `.env` (auth-relevant fields)
 
@@ -147,7 +147,7 @@ GOOGLE_SECRET=<from Google Cloud>
 
 # Comma-separated allowlist. Sign-in is rejected for any other email.
 # Matched case-insensitively after trimming.
-ONEHOUSE_ALLOWED_EMAILS=basile@example.com,partner@example.com
+HEJMLY_ALLOWED_EMAILS=basile@example.com,partner@example.com
 
 # Public Host the MCP endpoint is reached at (DNS-rebinding allowlist). The
 # server also allows the BETTER_AUTH_URL host + localhost:$PORT automatically,
@@ -165,14 +165,14 @@ scoped to that origin, so Google's redirect must come back there too.
 
 Better Auth runs `databaseHooks.user.create.before` immediately after Google
 returns a verified profile, before any user row is inserted. The hook
-checks the email against `ONEHOUSE_ALLOWED_EMAILS` (parsed once at boot)
+checks the email against `HEJMLY_ALLOWED_EMAILS` (parsed once at boot)
 and throws `APIError("FORBIDDEN")` if it isn't a match.
 
 Result: an unauthorised email gets a `403` on the callback, the `users` /
 `accounts` / `sessions` tables stay clean, and no session cookie is issued.
 
 To add a new family member:
-1. Append their Google account email to `ONEHOUSE_ALLOWED_EMAILS` in `.env`
+1. Append their Google account email to `HEJMLY_ALLOWED_EMAILS` in `.env`
 2. Restart the server (`pnpm dev` re-reads env on `bun --hot` restart)
 3. They click "Continue with Google"
 
@@ -183,10 +183,10 @@ To add a new family member:
 3. Click "Continue with Google"
 4. Approve on Google's screen
 5. Redirected back to `/`; subsequent `/api/*` requests carry the
-   `onehouse.session_token` cookie
+   `Hejmly.session_token` cookie
 
 If you're not on the allowlist, step 5 returns `403`; the URL will show
-the Better Auth error code. Fix: add your email to `ONEHOUSE_ALLOWED_EMAILS`
+the Better Auth error code. Fix: add your email to `HEJMLY_ALLOWED_EMAILS`
 and try again.
 
 ## Connecting from Claude (MCP)
@@ -240,8 +240,8 @@ the same Google sign-in + consent. Remote connectors require HTTPS.
 ## Building & running production
 
 ```bash
-docker build --target runtime -t onehouse .
-docker run -v ./data:/data --env-file .env -p 3000:3000 onehouse
+docker build --target runtime -t hejmly .
+docker run -v ./data:/data --env-file .env -p 3000:3000 hejmly
 ```
 
 Or via compose (default profile is `prod`):

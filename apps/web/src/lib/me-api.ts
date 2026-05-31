@@ -3,7 +3,7 @@ import {
   ConnectedAssistantsResponseSchema,
   type OAuthConsentId,
   RevokeAssistantResponseSchema,
-} from "@onehouse/core/shared";
+} from "@hejmly/core/shared";
 import * as v from "valibot";
 
 const parseJson = async <T>(res: Response, schema: v.GenericSchema<unknown, T>): Promise<T> => {

@@ -1,8 +1,8 @@
-import type { CleanupScheduler, GroceryService } from "@onehouse/app-grocery/server";
-import { registerGroceryTools } from "@onehouse/app-grocery/tools";
-import type { RecipeService } from "@onehouse/app-recipes/server";
-import { registerRecipeTools } from "@onehouse/app-recipes/tools";
-import type { AuditRecorder } from "@onehouse/core/server";
+import type { CleanupScheduler, GroceryService } from "@hejmly/app-grocery/server";
+import { registerGroceryTools } from "@hejmly/app-grocery/tools";
+import type { RecipeService } from "@hejmly/app-recipes/server";
+import { registerRecipeTools } from "@hejmly/app-recipes/tools";
+import type { AuditRecorder } from "@hejmly/core/server";
 import {
   createAuthServerMetadataHandler,
   createMcpAuthGuard,
@@ -10,7 +10,7 @@ import {
   deriveMcpAuthConfig,
   mcpHostGuard,
   runMcpRequest,
-} from "@onehouse/core/server";
+} from "@hejmly/core/server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 

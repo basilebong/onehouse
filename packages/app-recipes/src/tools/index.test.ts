@@ -1,11 +1,11 @@
 import { describe, expect, test } from "bun:test";
+import type { Auth, Db } from "@hejmly/core/server";
+import { createAuditRecorder } from "@hejmly/core/server";
+import { withTestAuth } from "@hejmly/core/server/test";
+import { type UserId, parseUserId } from "@hejmly/core/shared";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import type { Auth, Db } from "@onehouse/core/server";
-import { createAuditRecorder } from "@onehouse/core/server";
-import { withTestAuth } from "@onehouse/core/server/test";
-import { type UserId, parseUserId } from "@onehouse/core/shared";
 import * as v from "valibot";
 import { createRecipeService } from "../server/index.ts";
 import { CreateRecipeInputSchema } from "../shared/index.ts";
@@ -20,7 +20,7 @@ const seedUser = async (auth: Auth): Promise<UserId> => {
 };
 
 const connect = async (db: Db, actor: UserId): Promise<Client> => {
-  const server = new McpServer({ name: "onehouse-test", version: "1.0.0" });
+  const server = new McpServer({ name: "Hejmly-test", version: "1.0.0" });
   registerRecipeTools(server, {
     service: createRecipeService(db),
     actor,

@@ -1,6 +1,6 @@
 import { QueryClient } from "@tanstack/react-query";
 
-export const QUERY_CACHE_PERSIST_KEY = "onehouse-query-cache";
+export const QUERY_CACHE_PERSIST_KEY = "Hejmly-query-cache";
 
 export const queryClient = new QueryClient({
   defaultOptions: {

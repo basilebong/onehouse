@@ -1,4 +1,4 @@
-import { UserIdSchema, parseUserId } from "@onehouse/core/shared";
+import { UserIdSchema, parseUserId } from "@hejmly/core/shared";
 import * as v from "valibot";
 import {
   type GroceryAuthor,

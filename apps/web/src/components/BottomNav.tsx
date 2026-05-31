@@ -1,4 +1,4 @@
-import { TimerBar } from "@onehouse/app-recipes/ui";
+import { TimerBar } from "@hejmly/app-recipes/ui";
 import { BasketIcon, CookingPotIcon, type Icon, SquaresFourIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
 import type { ReactElement } from "react";

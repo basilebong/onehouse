@@ -1,6 +1,6 @@
+import type { AuditRecorder } from "@hejmly/core/server";
+import type { UserId } from "@hejmly/core/shared";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import type { AuditRecorder } from "@onehouse/core/server";
-import type { UserId } from "@onehouse/core/shared";
 import { match } from "ts-pattern";
 import * as z from "zod";
 import type { RecipeService } from "../server/index.ts";

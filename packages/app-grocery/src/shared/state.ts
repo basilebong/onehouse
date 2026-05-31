@@ -1,4 +1,4 @@
-import { type Result, type UserId, err, ok } from "@onehouse/core/shared";
+import { type Result, type UserId, err, ok } from "@hejmly/core/shared";
 import { match } from "ts-pattern";
 
 export type GroceryStatus =

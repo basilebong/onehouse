@@ -55,7 +55,7 @@ const renderHtml = (recipe: Recipe): string => {
     day: "numeric",
   });
 
-  return `<!doctype html><html><head><meta charset="utf-8"><title>${esc(recipe.title)}</title><style>${STYLES}</style></head><body><div class="wrap"><p class="eyebrow">OneHouse · Recipe</p><h1>${esc(recipe.title)}</h1>${recipe.description.length > 0 ? `<p class="desc">${esc(recipe.description)}</p>` : ""}<div class="meta"><span>Total time<b>${esc(formatMinutes(recipe.minutes))}</b></span><span>Serves<b>${esc(String(recipe.serves))}</b></span><span>Added by<b>${esc(recipe.cook.name)}</b></span></div><div class="grid"><section><h2>Ingredients · ${recipe.ingredients.length}</h2><ul class="ings">${ingredients}</ul></section><section><h2>Method</h2><ol class="steps">${steps}</ol></section></div><footer><span>Exported from OneHouse</span><span>${esc(date)}</span></footer></div></body></html>`;
+  return `<!doctype html><html><head><meta charset="utf-8"><title>${esc(recipe.title)}</title><style>${STYLES}</style></head><body><div class="wrap"><p class="eyebrow">Hejmly · Recipe</p><h1>${esc(recipe.title)}</h1>${recipe.description.length > 0 ? `<p class="desc">${esc(recipe.description)}</p>` : ""}<div class="meta"><span>Total time<b>${esc(formatMinutes(recipe.minutes))}</b></span><span>Serves<b>${esc(String(recipe.serves))}</b></span><span>Added by<b>${esc(recipe.cook.name)}</b></span></div><div class="grid"><section><h2>Ingredients · ${recipe.ingredients.length}</h2><ul class="ings">${ingredients}</ul></section><section><h2>Method</h2><ol class="steps">${steps}</ol></section></div><footer><span>Exported from Hejmly</span><span>${esc(date)}</span></footer></div></body></html>`;
 };
 
 export const exportRecipePdf = (recipe: Recipe, onError?: (message: string) => void): void => {

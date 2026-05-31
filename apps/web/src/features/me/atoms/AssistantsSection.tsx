@@ -1,4 +1,4 @@
-import type { ConnectedAssistant } from "@onehouse/core/shared";
+import type { ConnectedAssistant } from "@hejmly/core/shared";
 import { PlugsIcon } from "@phosphor-icons/react";
 import type { ReactElement } from "react";
 import { AssistantRow } from "./AssistantRow";
@@ -80,7 +80,7 @@ export const AssistantsSection = ({
             <div className="min-w-0 flex-1">
               <div className="font-medium text-[15px] text-slate-900">No assistants connected</div>
               <div className="mt-0.5 text-[13px] text-slate-500 leading-relaxed">
-                When you sign Claude or another MCP client into Onehouse, it'll appear here.
+                When you sign Claude or another MCP client into Hejmly, it'll appear here.
               </div>
             </div>
           </div>

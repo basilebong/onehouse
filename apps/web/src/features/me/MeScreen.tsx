@@ -1,4 +1,4 @@
-import type { ConnectedAssistant, OAuthConsentId } from "@onehouse/core/shared";
+import type { ConnectedAssistant, OAuthConsentId } from "@hejmly/core/shared";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
 import { type ReactElement, useEffect, useRef, useState } from "react";

@@ -17,7 +17,7 @@ RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store \
 FROM deps AS build
 WORKDIR /app
 COPY . .
-RUN pnpm --filter @onehouse/web build
+RUN pnpm --filter @hejmly/web build
 
 FROM oven/bun:1-slim AS runtime
 WORKDIR /app
@@ -25,19 +25,19 @@ ENV NODE_ENV=production
 ENV DATABASE_PATH=/data/app.db
 ENV PORT=3000
 
-RUN groupadd -r onehouse && useradd -r -g onehouse onehouse \
- && mkdir -p /data && chown -R onehouse:onehouse /data /app
+RUN groupadd -r hejmly && useradd -r -g hejmly hejmly \
+ && mkdir -p /data && chown -R hejmly:hejmly /data /app
 
-COPY --from=build --chown=onehouse:onehouse /app/node_modules    ./node_modules
-COPY --from=build --chown=onehouse:onehouse /app/packages        ./packages
-COPY --from=build --chown=onehouse:onehouse /app/apps/server     ./apps/server
-COPY --from=build --chown=onehouse:onehouse /app/apps/web/dist   ./apps/web/dist
-COPY --from=build --chown=onehouse:onehouse /app/drizzle         ./drizzle
-COPY --from=build --chown=onehouse:onehouse /app/scripts         ./scripts
-COPY --from=build --chown=onehouse:onehouse /app/package.json    ./
-COPY --chown=onehouse:onehouse LICENSE NOTICE ./
+COPY --from=build --chown=hejmly:hejmly /app/node_modules    ./node_modules
+COPY --from=build --chown=hejmly:hejmly /app/packages        ./packages
+COPY --from=build --chown=hejmly:hejmly /app/apps/server     ./apps/server
+COPY --from=build --chown=hejmly:hejmly /app/apps/web/dist   ./apps/web/dist
+COPY --from=build --chown=hejmly:hejmly /app/drizzle         ./drizzle
+COPY --from=build --chown=hejmly:hejmly /app/scripts         ./scripts
+COPY --from=build --chown=hejmly:hejmly /app/package.json    ./
+COPY --chown=hejmly:hejmly LICENSE NOTICE ./
 
-USER onehouse
+USER hejmly
 EXPOSE 3000
 VOLUME ["/data"]
 CMD ["sh", "-c", "bun ./scripts/migrate.ts && exec bun ./apps/server/src/index.ts"]

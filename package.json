@@ -1,5 +1,5 @@
 {
-  "name": "onehouse",
+  "name": "hejmly",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -8,8 +8,8 @@
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "hooks:install": "lefthook install",
-    "dev": "concurrently -k -n srv,web -c blue,green \"bun --hot apps/server/src/index.ts\" \"pnpm --filter @onehouse/web dev\"",
-    "build": "pnpm --filter @onehouse/web build",
+    "dev": "concurrently -k -n srv,web -c blue,green \"bun --hot apps/server/src/index.ts\" \"pnpm --filter @hejmly/web dev\"",
+    "build": "pnpm --filter @hejmly/web build",
     "typecheck": "tsc -b",
     "test": "bun test",
     "check": "biome check .",

@@ -1,5 +1,5 @@
-import { RECIPE_CATEGORIES, type RecipeCategory } from "@onehouse/app-recipes/shared";
-import { FilterChip, RecipeCard } from "@onehouse/app-recipes/ui";
+import { RECIPE_CATEGORIES, type RecipeCategory } from "@hejmly/app-recipes/shared";
+import { FilterChip, RecipeCard } from "@hejmly/app-recipes/ui";
 import { CookingPotIcon, PlusIcon, WarningCircleIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";

@@ -38,13 +38,13 @@ importers:
 
   apps/server:
     dependencies:
-      '@onehouse/app-grocery':
+      '@hejmly/app-grocery':
         specifier: workspace:*
         version: link:../../packages/app-grocery
-      '@onehouse/app-recipes':
+      '@hejmly/app-recipes':
         specifier: workspace:*
         version: link:../../packages/app-recipes
-      '@onehouse/core':
+      '@hejmly/core':
         specifier: workspace:*
         version: link:../../packages/core
       hono:
@@ -56,13 +56,13 @@ importers:
       '@better-auth/oauth-provider':
         specifier: 1.6.11
         version: 1.6.11(@better-auth/core@1.6.11(@better-auth/utils@0.4.0)(@better-fetch/fetch@1.1.21)(better-call@1.3.5(zod@4.4.3))(jose@6.2.3)(kysely@0.28.17)(nanostores@1.3.0))(@better-auth/utils@0.4.0)(@better-fetch/fetch@1.1.21)(better-auth@1.6.11(drizzle-kit@0.31.10)(drizzle-orm@0.45.2(bun-types@1.3.0(@types/react@19.2.15))(kysely@0.28.17))(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(better-call@1.3.5(zod@4.4.3))
-      '@onehouse/app-grocery':
+      '@hejmly/app-grocery':
         specifier: workspace:*
         version: link:../../packages/app-grocery
-      '@onehouse/app-recipes':
+      '@hejmly/app-recipes':
         specifier: workspace:*
         version: link:../../packages/app-recipes
-      '@onehouse/core':
+      '@hejmly/core':
         specifier: workspace:*
         version: link:../../packages/core
       '@phosphor-icons/react':
@@ -144,12 +144,12 @@ importers:
 
   packages/app-grocery:
     dependencies:
+      '@hejmly/core':
+        specifier: workspace:*
+        version: link:../core
       '@modelcontextprotocol/sdk':
         specifier: 1.29.0
         version: 1.29.0(zod@4.4.3)
-      '@onehouse/core':
-        specifier: workspace:*
-        version: link:../core
       '@radix-ui/react-dropdown-menu':
         specifier: 2.1.16
         version: 2.1.16(@types/react-dom@19.2.3(@types/react@19.2.15))(@types/react@19.2.15)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -190,12 +190,12 @@ importers:
 
   packages/app-recipes:
     dependencies:
+      '@hejmly/core':
+        specifier: workspace:*
+        version: link:../core
       '@modelcontextprotocol/sdk':
         specifier: 1.29.0
         version: 1.29.0(zod@4.4.3)
-      '@onehouse/core':
-        specifier: workspace:*
-        version: link:../core
       clsx:
         specifier: 2.1.1
         version: 2.1.1

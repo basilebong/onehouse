@@ -1,4 +1,4 @@
-import { paletteFor } from "@onehouse/app-grocery/ui";
+import { paletteFor } from "@hejmly/app-grocery/ui";
 import type { ReactElement } from "react";
 
 type MeAvatarProps = {

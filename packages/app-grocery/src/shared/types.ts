@@ -1,4 +1,4 @@
-import type { UserId } from "@onehouse/core/shared";
+import type { UserId } from "@hejmly/core/shared";
 import type { GroceryItemId } from "./ids.ts";
 import type { GroceryStatus } from "./state.ts";
 
