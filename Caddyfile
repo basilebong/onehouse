@@ -1,4 +1,4 @@
-{$HEJMLY_DOMAIN:hejmly.example.de} {
+{$HEJMLY_DOMAIN:app.hejmly.com} {
     encode zstd gzip
     reverse_proxy app:3000
 }

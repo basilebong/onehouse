@@ -125,21 +125,25 @@ any user row is created.
 1. Open <https://console.cloud.google.com/apis/credentials>
 2. Create an **OAuth 2.0 Client ID**, type **Web application**
 3. Authorized JavaScript origins:
-   - `http://localhost:5173`
+   - `http://localhost:5173` (local dev)
+   - `https://app.hejmly.com` (production)
 4. Authorized redirect URIs:
-   - `http://localhost:5173/api/auth/callback/google`
+   - `http://localhost:5173/api/auth/callback/google` (local dev)
+   - `https://app.hejmly.com/api/auth/callback/google` (production)
 5. Copy the Client ID + Client Secret into `.env`:
    ```ini
    GOOGLE_ID=<client id>
    GOOGLE_SECRET=<client secret>
    ```
 
-In production, repeat with your real public URL (e.g. `https://hejmly.example.de`).
+The production deployment is served at `https://app.hejmly.com`, so
+`BETTER_AUTH_URL` must be set to exactly that origin — Google sends its
+redirect back to `BETTER_AUTH_URL`, and a mismatch breaks sign-in.
 
 ### `.env` (auth-relevant fields)
 
 ```ini
-BETTER_AUTH_URL=http://localhost:5173          # public origin the browser hits
+BETTER_AUTH_URL=http://localhost:5173          # public origin (prod: https://app.hejmly.com)
 BETTER_AUTH_SECRET=<openssl rand -hex 32>       # 32+ random hex chars
 
 GOOGLE_ID=<from Google Cloud>
@@ -152,7 +156,7 @@ HEJMLY_ALLOWED_EMAILS=basile@example.com,partner@example.com
 # Public Host the MCP endpoint is reached at (DNS-rebinding allowlist). The
 # server also allows the BETTER_AUTH_URL host + localhost:$PORT automatically,
 # so local dev needs no change. In prod set it to your domain.
-MCP_HOST=localhost
+MCP_HOST=localhost                              # public MCP host (prod: app.hejmly.com)
 
 DATABASE_PATH=./data/app.db
 ```
