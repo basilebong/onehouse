@@ -46,7 +46,11 @@ jobs:
           #   MPL §3.3 explicitly allows combining unmodified MPL files into a Larger Work under any license.
           # CC-BY-4.0: caniuse-lite (browser-support dataset pulled by Babel→browserslist). Build-time data only,
           #   does not ship in production bundle; attribution preserved via the package's LICENSE file.
-          allow-licenses: MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC, 0BSD, CC0-1.0, Unlicense, MPL-2.0, CC-BY-4.0
+          # BlueOak-1.0.0: the glob/minimatch/lru-cache/jackspeak/minipass/path-scurry/@isaacs-cliui family (isaacs),
+          #   pulled transitively by vite-plugin-pwa → workbox-build at BUILD time (SW generation). Blue Oak Model
+          #   License 1.0.0 is OSI-approved and permissive — no copyleft, more permissive than MIT. Not in the
+          #   production bundle.
+          allow-licenses: MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC, 0BSD, CC0-1.0, Unlicense, MPL-2.0, CC-BY-4.0, BlueOak-1.0.0
           # rou3 (Hono router): package.json declares "license": "MIT" and ships an MIT LICENSE file;
           #   GitHub's scanner spuriously reports "MIT AND MS-PL" — verified false-positive against upstream source.
           # @better-fetch/fetch (better-auth HTTP client): package.json missing license field, but the published
@@ -55,4 +59,8 @@ jobs:
           #   @modelcontextprotocol/sdk via bunqueue): package.json declares "license": "BSD-2-Clause" and ships
           #   a pure BSD-2-Clause LICENSE.md; GitHub's scanner spuriously appends "AND JSON" — verified false-positive
           #   in node_modules @ 8.0.2. No runtime code, just .d.ts type definitions.
-          allow-dependencies-licenses: 'pkg:npm/rou3, pkg:npm/%40better-fetch/fetch, pkg:npm/json-schema-typed'
+          # unicode-property-aliases-ecmascript + unicode-match-property-value-ecmascript: declare "license": "MIT"
+          #   (Mathias Bynens) but ship Unicode data tables, so GitHub's scanner reports
+          #   "LicenseRef-scancode-unicode AND MIT". The Unicode license is permissive (BSD-style). Pulled by
+          #   workbox-build's Babel (preset-env) toolchain at build time; verified MIT in node_modules.
+          allow-dependencies-licenses: 'pkg:npm/rou3, pkg:npm/%40better-fetch/fetch, pkg:npm/json-schema-typed, pkg:npm/unicode-property-aliases-ecmascript, pkg:npm/unicode-match-property-value-ecmascript'
