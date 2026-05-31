@@ -89,12 +89,12 @@ describe("grocery MCP tools", () => {
       const client = await connect(db, await seedUser(auth));
       const { tools } = await client.listTools();
       expect(tools.map((t) => t.name).sort()).toEqual([
-        "grocery.add_item",
-        "grocery.list_items",
-        "grocery.mark_pending",
-        "grocery.mark_purchased",
-        "grocery.remove_item",
-        "grocery.update_item",
+        "grocery__add_item",
+        "grocery__list_items",
+        "grocery__mark_pending",
+        "grocery__mark_purchased",
+        "grocery__remove_item",
+        "grocery__update_item",
       ]);
     });
   });
@@ -104,7 +104,7 @@ describe("grocery MCP tools", () => {
       const actor = await seedUser(auth);
       const client = await connect(db, actor);
       const result = await client.callTool({
-        name: "grocery.add_item",
+        name: "grocery__add_item",
         arguments: { name: "Milk", description: "Whole" },
       });
       expect(result.isError).toBeFalsy();
@@ -116,7 +116,7 @@ describe("grocery MCP tools", () => {
           addedBy: { kind: "user", id: actor },
         },
       });
-      expect(auditActions(db)).toContain("grocery.add_item");
+      expect(auditActions(db)).toContain("grocery__add_item");
     });
   });
 
@@ -125,13 +125,13 @@ describe("grocery MCP tools", () => {
       const actor = await seedUser(auth);
       const client = await connect(db, actor);
       const added = await client.callTool({
-        name: "grocery.add_item",
+        name: "grocery__add_item",
         arguments: { name: "Eggs" },
       });
       const itemId = itemIdOf(added);
 
       const purchased = await client.callTool({
-        name: "grocery.mark_purchased",
+        name: "grocery__mark_purchased",
         arguments: { itemId },
       });
       expect(purchased.structuredContent).toMatchObject({
@@ -139,7 +139,7 @@ describe("grocery MCP tools", () => {
       });
 
       const list = await client.callTool({
-        name: "grocery.list_items",
+        name: "grocery__list_items",
         arguments: { status: "purchased" },
       });
       expect(list.structuredContent).toMatchObject({ items: [{ name: "Eggs" }] });
@@ -151,12 +151,12 @@ describe("grocery MCP tools", () => {
       const actor = await seedUser(auth);
       const client = await connect(db, actor);
       const added = await client.callTool({
-        name: "grocery.add_item",
+        name: "grocery__add_item",
         arguments: { name: "Bred" },
       });
       const itemId = itemIdOf(added);
       const updated = await client.callTool({
-        name: "grocery.update_item",
+        name: "grocery__update_item",
         arguments: { itemId, name: "Bread" },
       });
       expect(updated.structuredContent).toMatchObject({ item: { name: "Bread" } });
@@ -168,12 +168,12 @@ describe("grocery MCP tools", () => {
       const actor = await seedUser(auth);
       const client = await connect(db, actor);
       const added = await client.callTool({
-        name: "grocery.add_item",
+        name: "grocery__add_item",
         arguments: { name: "Soap" },
       });
       const itemId = itemIdOf(added);
-      await client.callTool({ name: "grocery.remove_item", arguments: { itemId } });
-      const list = await client.callTool({ name: "grocery.list_items", arguments: {} });
+      await client.callTool({ name: "grocery__remove_item", arguments: { itemId } });
+      const list = await client.callTool({ name: "grocery__list_items", arguments: {} });
       expect(list.structuredContent).toMatchObject({ items: [] });
     });
   });
@@ -182,7 +182,7 @@ describe("grocery MCP tools", () => {
     await withTestAuth({ allowedEmails: TEST_EMAIL }, async ({ auth, db }) => {
       const client = await connect(db, await seedUser(auth));
       const result = await client.callTool({
-        name: "grocery.mark_purchased",
+        name: "grocery__mark_purchased",
         arguments: { itemId: "does-not-exist" },
       });
       expect(result.isError).toBe(true);
@@ -210,7 +210,7 @@ describe("grocery MCP tools", () => {
       await client.connect(clientTransport);
 
       const result = await client.callTool({
-        name: "grocery.add_item",
+        name: "grocery__add_item",
         arguments: { name: "Milk" },
       });
       expect(result.isError).toBeFalsy();
@@ -224,16 +224,16 @@ describe("grocery MCP tools", () => {
       const { scheduler, calls } = createStubCleanup();
       const client = await connect(db, await seedUser(auth), scheduler);
       const added = await client.callTool({
-        name: "grocery.add_item",
+        name: "grocery__add_item",
         arguments: { name: "Eggs" },
       });
       const itemId = itemIdOf(added);
 
-      await client.callTool({ name: "grocery.mark_purchased", arguments: { itemId } });
+      await client.callTool({ name: "grocery__mark_purchased", arguments: { itemId } });
       expect(calls.scheduled).toEqual([parseGroceryItemId(itemId)]);
 
-      await client.callTool({ name: "grocery.mark_pending", arguments: { itemId } });
-      await client.callTool({ name: "grocery.remove_item", arguments: { itemId } });
+      await client.callTool({ name: "grocery__mark_pending", arguments: { itemId } });
+      await client.callTool({ name: "grocery__remove_item", arguments: { itemId } });
       expect(calls.cancelled).toEqual([parseGroceryItemId(itemId), parseGroceryItemId(itemId)]);
     });
   });

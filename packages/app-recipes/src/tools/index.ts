@@ -80,7 +80,7 @@ export const registerRecipeTools = (server: McpServer, deps: RecipeToolDeps): vo
   const { service, actor, audit } = deps;
 
   server.registerTool(
-    "recipes.list",
+    "recipes__list",
     {
       title: "List recipes",
       description: "List the household's recipes, optionally filtered by category.",
@@ -93,7 +93,7 @@ export const registerRecipeTools = (server: McpServer, deps: RecipeToolDeps): vo
         "audit",
         audit.record({
           userId: actor,
-          action: "recipes.list",
+          action: "recipes__list",
           via: "mcp",
           metadata: { category: category ?? "all", count: recipes.length },
         }),
@@ -104,7 +104,7 @@ export const registerRecipeTools = (server: McpServer, deps: RecipeToolDeps): vo
   );
 
   server.registerTool(
-    "recipes.get",
+    "recipes__get",
     {
       title: "Get a recipe",
       description: "Fetch a full recipe — ingredients and method — by id.",
@@ -117,7 +117,7 @@ export const registerRecipeTools = (server: McpServer, deps: RecipeToolDeps): vo
         "audit",
         audit.record({
           userId: actor,
-          action: "recipes.get",
+          action: "recipes__get",
           via: "mcp",
           metadata: { recipeId: result.value.id },
         }),
@@ -130,7 +130,7 @@ export const registerRecipeTools = (server: McpServer, deps: RecipeToolDeps): vo
   );
 
   server.registerTool(
-    "recipes.add",
+    "recipes__add",
     {
       title: "Add a recipe",
       description: "Create a new recipe with ingredients and step-by-step method.",
@@ -170,7 +170,7 @@ export const registerRecipeTools = (server: McpServer, deps: RecipeToolDeps): vo
         "audit",
         audit.record({
           userId: actor,
-          action: "recipes.add",
+          action: "recipes__add",
           via: "mcp",
           metadata: { recipeId: result.value.id },
         }),
@@ -183,7 +183,7 @@ export const registerRecipeTools = (server: McpServer, deps: RecipeToolDeps): vo
   );
 
   server.registerTool(
-    "recipes.update",
+    "recipes__update",
     {
       title: "Update a recipe",
       description:
@@ -229,7 +229,7 @@ export const registerRecipeTools = (server: McpServer, deps: RecipeToolDeps): vo
         "audit",
         audit.record({
           userId: actor,
-          action: "recipes.update",
+          action: "recipes__update",
           via: "mcp",
           metadata: { recipeId: result.value.id },
         }),
@@ -242,7 +242,7 @@ export const registerRecipeTools = (server: McpServer, deps: RecipeToolDeps): vo
   );
 
   server.registerTool(
-    "recipes.remove",
+    "recipes__remove",
     {
       title: "Remove a recipe",
       description: "Permanently delete a recipe by id.",
@@ -255,7 +255,7 @@ export const registerRecipeTools = (server: McpServer, deps: RecipeToolDeps): vo
         "audit",
         audit.record({
           userId: actor,
-          action: "recipes.remove",
+          action: "recipes__remove",
           via: "mcp",
           metadata: { recipeId: result.value.id },
         }),

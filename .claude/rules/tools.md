@@ -52,7 +52,7 @@ the MCP SDK v1 requires it as a peer dep, and this is the ONLY place Zod
 appears in the codebase.
 
 ```ts
-server.registerTool("grocery.list_items", {
+server.registerTool("grocery__list_items", {
   title: "List grocery items",
   description: "List items on a grocery list, optionally filtered by status.",
   inputSchema: { listId: z.string(), status: z.enum([...]).optional() },
@@ -64,8 +64,17 @@ server.registerTool("grocery.list_items", {
 
 ## Naming
 
-`<app>.<verb_object>` — `grocery.list_items`, `grocery.add_item`,
-`grocery.mark_purchased`. Dots are namespaces; underscores separate words.
+`<app>__<verb_object>` — `grocery__list_items`, `grocery__add_item`,
+`grocery__mark_purchased`. Double underscore is the namespace separator;
+single underscores separate words within the verb_object.
+
+Tool names MUST match the Anthropic Messages API pattern
+`^[a-zA-Z0-9_-]{1,64}$` — only letters, digits, `_`, and `-`. Dots are
+illegal: when a remote MCP server's tools are surfaced to the model, each
+name is sent as an API tool definition, and a dot rejects the whole request
+(`tools.<n>.FrontendRemoteMcpToolDefinition.name: String should match
+pattern '^[a-zA-Z0-9_-]{1,64}$'`). That is why the separator is `__`, not
+the `.` MCP itself would otherwise permit.
 
 ## Versioning
 

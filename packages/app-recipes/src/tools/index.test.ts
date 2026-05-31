@@ -68,11 +68,11 @@ describe("recipe MCP tools", () => {
       const client = await connect(db, await seedUser(auth));
       const { tools } = await client.listTools();
       expect(tools.map((t) => t.name).sort()).toEqual([
-        "recipes.add",
-        "recipes.get",
-        "recipes.list",
-        "recipes.remove",
-        "recipes.update",
+        "recipes__add",
+        "recipes__get",
+        "recipes__list",
+        "recipes__remove",
+        "recipes__update",
       ]);
     });
   });
@@ -80,14 +80,14 @@ describe("recipe MCP tools", () => {
   test("add then get returns the full recipe", async () => {
     await withTestAuth({ allowedEmails: TEST_EMAIL }, async ({ auth, db }) => {
       const client = await connect(db, await seedUser(auth));
-      const added = await client.callTool({ name: "recipes.add", arguments: ADD_ARGS });
+      const added = await client.callTool({ name: "recipes__add", arguments: ADD_ARGS });
       expect(added.isError).toBeFalsy();
       expect(added.structuredContent).toMatchObject({
         recipe: { title: "Tomato Butter Rigatoni", category: "Main" },
       });
       const recipeId = recipeIdOf(added);
 
-      const got = await client.callTool({ name: "recipes.get", arguments: { recipeId } });
+      const got = await client.callTool({ name: "recipes__get", arguments: { recipeId } });
       expect(got.structuredContent).toMatchObject({
         recipe: { steps: [{ timers: [{ minutes: 11 }] }] },
       });
@@ -97,13 +97,13 @@ describe("recipe MCP tools", () => {
   test("list filters by category", async () => {
     await withTestAuth({ allowedEmails: TEST_EMAIL }, async ({ auth, db }) => {
       const client = await connect(db, await seedUser(auth));
-      await client.callTool({ name: "recipes.add", arguments: ADD_ARGS });
+      await client.callTool({ name: "recipes__add", arguments: ADD_ARGS });
       await client.callTool({
-        name: "recipes.add",
+        name: "recipes__add",
         arguments: { ...ADD_ARGS, title: "Lemon Soup", category: "Starter" },
       });
       const mains = await client.callTool({
-        name: "recipes.list",
+        name: "recipes__list",
         arguments: { category: "Main" },
       });
       expect(mains.structuredContent).toMatchObject({
@@ -115,10 +115,10 @@ describe("recipe MCP tools", () => {
   test("update replaces the recipe", async () => {
     await withTestAuth({ allowedEmails: TEST_EMAIL }, async ({ auth, db }) => {
       const client = await connect(db, await seedUser(auth));
-      const added = await client.callTool({ name: "recipes.add", arguments: ADD_ARGS });
+      const added = await client.callTool({ name: "recipes__add", arguments: ADD_ARGS });
       const recipeId = recipeIdOf(added);
       const updated = await client.callTool({
-        name: "recipes.update",
+        name: "recipes__update",
         arguments: { ...ADD_ARGS, recipeId, title: "Rigatoni v2", serves: 6 },
       });
       expect(updated.isError).toBeFalsy();
@@ -142,7 +142,7 @@ describe("recipe MCP tools", () => {
 
       const client = await connect(db, actor);
       const updated = await client.callTool({
-        name: "recipes.update",
+        name: "recipes__update",
         arguments: { ...ADD_ARGS, recipeId, title: "Rigatoni with a photo" },
       });
       expect(updated.isError).toBeFalsy();
@@ -156,7 +156,7 @@ describe("recipe MCP tools", () => {
     await withTestAuth({ allowedEmails: TEST_EMAIL }, async ({ auth, db }) => {
       const client = await connect(db, await seedUser(auth));
       const result = await client.callTool({
-        name: "recipes.update",
+        name: "recipes__update",
         arguments: { ...ADD_ARGS, recipeId: "does-not-exist" },
       });
       expect(result.isError).toBe(true);
@@ -166,10 +166,10 @@ describe("recipe MCP tools", () => {
   test("remove deletes the recipe", async () => {
     await withTestAuth({ allowedEmails: TEST_EMAIL }, async ({ auth, db }) => {
       const client = await connect(db, await seedUser(auth));
-      const added = await client.callTool({ name: "recipes.add", arguments: ADD_ARGS });
+      const added = await client.callTool({ name: "recipes__add", arguments: ADD_ARGS });
       const recipeId = recipeIdOf(added);
-      await client.callTool({ name: "recipes.remove", arguments: { recipeId } });
-      const list = await client.callTool({ name: "recipes.list", arguments: {} });
+      await client.callTool({ name: "recipes__remove", arguments: { recipeId } });
+      const list = await client.callTool({ name: "recipes__list", arguments: {} });
       expect(list.structuredContent).toMatchObject({ recipes: [] });
     });
   });
@@ -178,7 +178,7 @@ describe("recipe MCP tools", () => {
     await withTestAuth({ allowedEmails: TEST_EMAIL }, async ({ auth, db }) => {
       const client = await connect(db, await seedUser(auth));
       const result = await client.callTool({
-        name: "recipes.get",
+        name: "recipes__get",
         arguments: { recipeId: "does-not-exist" },
       });
       expect(result.isError).toBe(true);

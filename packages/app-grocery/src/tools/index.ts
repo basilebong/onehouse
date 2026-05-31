@@ -48,7 +48,7 @@ export const registerGroceryTools = (server: McpServer, deps: GroceryToolDeps): 
   const { service, actor, audit, cleanup } = deps;
 
   server.registerTool(
-    "grocery.list_items",
+    "grocery__list_items",
     {
       title: "List grocery items",
       description: "List items on the grocery list, optionally filtered by status.",
@@ -64,7 +64,7 @@ export const registerGroceryTools = (server: McpServer, deps: GroceryToolDeps): 
         "audit",
         audit.record({
           userId: actor,
-          action: "grocery.list_items",
+          action: "grocery__list_items",
           via: "mcp",
           metadata: { status: status ?? "all", count: items.length },
         }),
@@ -76,7 +76,7 @@ export const registerGroceryTools = (server: McpServer, deps: GroceryToolDeps): 
   );
 
   server.registerTool(
-    "grocery.add_item",
+    "grocery__add_item",
     {
       title: "Add grocery item",
       description: "Add a new item to the grocery list.",
@@ -92,7 +92,7 @@ export const registerGroceryTools = (server: McpServer, deps: GroceryToolDeps): 
         "audit",
         audit.record({
           userId: actor,
-          action: "grocery.add_item",
+          action: "grocery__add_item",
           via: "mcp",
           metadata: { itemId: result.value.id },
         }),
@@ -102,7 +102,7 @@ export const registerGroceryTools = (server: McpServer, deps: GroceryToolDeps): 
   );
 
   server.registerTool(
-    "grocery.mark_purchased",
+    "grocery__mark_purchased",
     {
       title: "Mark grocery item purchased",
       description: "Mark a grocery item as purchased.",
@@ -115,7 +115,7 @@ export const registerGroceryTools = (server: McpServer, deps: GroceryToolDeps): 
         "audit",
         audit.record({
           userId: actor,
-          action: "grocery.mark_purchased",
+          action: "grocery__mark_purchased",
           via: "mcp",
           metadata: { itemId: result.value.id },
         }),
@@ -126,7 +126,7 @@ export const registerGroceryTools = (server: McpServer, deps: GroceryToolDeps): 
   );
 
   server.registerTool(
-    "grocery.mark_pending",
+    "grocery__mark_pending",
     {
       title: "Mark grocery item pending",
       description: "Move a purchased grocery item back to pending.",
@@ -139,7 +139,7 @@ export const registerGroceryTools = (server: McpServer, deps: GroceryToolDeps): 
         "audit",
         audit.record({
           userId: actor,
-          action: "grocery.mark_pending",
+          action: "grocery__mark_pending",
           via: "mcp",
           metadata: { itemId: result.value.id },
         }),
@@ -150,7 +150,7 @@ export const registerGroceryTools = (server: McpServer, deps: GroceryToolDeps): 
   );
 
   server.registerTool(
-    "grocery.update_item",
+    "grocery__update_item",
     {
       title: "Update grocery item",
       description: "Update the name or description of a grocery item.",
@@ -167,7 +167,7 @@ export const registerGroceryTools = (server: McpServer, deps: GroceryToolDeps): 
         "audit",
         audit.record({
           userId: actor,
-          action: "grocery.update_item",
+          action: "grocery__update_item",
           via: "mcp",
           metadata: { itemId: result.value.id },
         }),
@@ -177,7 +177,7 @@ export const registerGroceryTools = (server: McpServer, deps: GroceryToolDeps): 
   );
 
   server.registerTool(
-    "grocery.remove_item",
+    "grocery__remove_item",
     {
       title: "Remove grocery item",
       description: "Permanently remove an item from the grocery list.",
@@ -190,7 +190,7 @@ export const registerGroceryTools = (server: McpServer, deps: GroceryToolDeps): 
         "audit",
         audit.record({
           userId: actor,
-          action: "grocery.remove_item",
+          action: "grocery__remove_item",
           via: "mcp",
           metadata: { itemId: result.value.id },
         }),

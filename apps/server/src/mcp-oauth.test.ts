@@ -204,7 +204,7 @@ describe("MCP over OAuth (end-to-end)", () => {
         jsonrpc: "2.0",
         id: 2,
         method: "tools/call",
-        params: { name: "grocery.add_item", arguments: { name: "Milk via Claude" } },
+        params: { name: "grocery__add_item", arguments: { name: "Milk via Claude" } },
       });
       expect(call.status).toBe(200);
       const payload = dataPayload(await call.text());
@@ -213,7 +213,7 @@ describe("MCP over OAuth (end-to-end)", () => {
       const items = db.$client.query("SELECT name FROM grocery_items").all();
       expect(items).toEqual([{ name: "Milk via Claude" }]);
       const audit = db.$client.query("SELECT action, via FROM audit_log").all();
-      expect(audit).toEqual([{ action: "grocery.add_item", via: "mcp" }]);
+      expect(audit).toEqual([{ action: "grocery__add_item", via: "mcp" }]);
     });
   });
 
