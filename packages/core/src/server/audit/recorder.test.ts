@@ -13,7 +13,7 @@ describe("audit recorder", () => {
 
       await recorder.record({
         userId,
-        action: "grocery.add_item",
+        action: "grocery__add_item",
         via: "mcp",
         metadata: { itemId: "abc", name: "Milk" },
       });
@@ -21,7 +21,7 @@ describe("audit recorder", () => {
       const rows = await db.select().from(auditLog).where(eq(auditLog.userId, userId));
       expect(rows).toHaveLength(1);
       const row = rows[0];
-      expect(row?.action).toBe("grocery.add_item");
+      expect(row?.action).toBe("grocery__add_item");
       expect(row?.via).toBe("mcp");
       expect(row?.metadataJson).toBe(JSON.stringify({ itemId: "abc", name: "Milk" }));
       expect(row?.createdAt).toBeInstanceOf(Date);
@@ -33,7 +33,7 @@ describe("audit recorder", () => {
       const recorder = createAuditRecorder(db);
       const userId = parseUserId("user_456");
 
-      await recorder.record({ userId, action: "grocery.list_items", via: "mcp" });
+      await recorder.record({ userId, action: "grocery__list_items", via: "mcp" });
 
       const rows = await db.select().from(auditLog).where(eq(auditLog.userId, userId));
       expect(rows[0]?.metadataJson).toBeNull();
