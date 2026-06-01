@@ -44,7 +44,7 @@ const AppTile = ({ entry }: { entry: AppEntry }): ReactElement => {
 };
 
 export const AppsScreen = (): ReactElement => (
-  <main className="flex min-h-dvh flex-col bg-slate-50">
+  <main className="flex h-dvh flex-col overflow-hidden bg-slate-50">
     <header className="shrink-0 bg-white px-5 pt-[max(env(safe-area-inset-top),0.5rem)] pb-3">
       <h1 className="font-semibold text-2xl text-slate-900 tracking-tight">Apps</h1>
       <p className="mt-0.5 text-slate-500 text-sm">Everything in your home, one tap away</p>

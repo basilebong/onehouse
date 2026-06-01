@@ -104,9 +104,16 @@
   }
 
   html,
-  body,
+  body {
+    height: 100dvh;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+
   #root {
-    min-height: 100dvh;
+    height: 100dvh;
+    overflow-y: auto;
+    overscroll-behavior: none;
   }
 
   body {

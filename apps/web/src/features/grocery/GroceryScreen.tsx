@@ -325,7 +325,7 @@ export const GroceryScreen = (): ReactElement => {
 
   if (items.isPending) {
     return (
-      <main className="flex min-h-dvh flex-col bg-slate-50">
+      <main className="flex h-dvh flex-col overflow-hidden bg-slate-50">
         <ListSkeleton />
         <BottomNav active="grocery" />
       </main>
@@ -334,7 +334,7 @@ export const GroceryScreen = (): ReactElement => {
 
   if (items.isError) {
     return (
-      <main className="flex min-h-dvh flex-col bg-slate-50">
+      <main className="flex h-dvh flex-col overflow-hidden bg-slate-50">
         <div className="flex flex-1 flex-col items-center justify-center gap-4 px-8 text-center">
           <WarningCircleIcon size={40} weight="fill" className="text-slate-300" />
           <div>
@@ -364,7 +364,7 @@ export const GroceryScreen = (): ReactElement => {
     .exhaustive();
 
   return (
-    <main className="flex min-h-dvh flex-col bg-slate-50">
+    <main className="flex h-dvh flex-col overflow-hidden bg-slate-50">
       <TopBar count={counts.total} doneCount={counts.done} queuedCount={counts.queued} />
       {visibleItems.length === 0 ? (
         <EmptyState />
