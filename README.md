@@ -1,36 +1,41 @@
 # Hejmly
 
-![status: WIP](https://img.shields.io/badge/status-WIP-orange) ![release: pre--v0](https://img.shields.io/badge/release-pre--v0-red)
+![version: v0.0.1](https://img.shields.io/badge/version-v0.0.1-blue)
 
-> **Heads up — this is work in progress.** Scaffold only. No app is wired up
-> end-to-end yet; nothing here is ready to run in production, and not even a
-> `v0` release has been cut. Expect breaking changes on every commit. Pin
-> nothing.
+<p align="center">
+  <img src="docs/thumbnail.png" alt="Hejmly recipes screen" width="520">
+</p>
 
-A self-hosted "fleet of family apps" platform. Single Bun process, single Docker
-image, mobile-first PWA, behind Caddy on a Hetzner VPS. First app: grocery
-list. Not publicly branded — internal infrastructure only.
+<p align="center">Your family's groceries and recipes in one private app you own, and that Claude can manage for you.</p>
 
-License: [Elastic License 2.0](./LICENSE) — free for self-hosted personal /
-internal use; cannot be offered as a managed third-party service.
+- **Groceries and recipes** for the whole household, synced across everyone's phones
+- **Installs like a native app** and keeps working offline (PWA)
+- **Claude built in**: a secure MCP server lets you manage your lists and recipes by chat
+- **Private by design**: runs on your own server, sign-in limited to your family
+- **One login** for a growing set of small family apps (grocery and recipes today)
 
-See the full architecture spec for context and rationale.
+Under the hood: a single Bun process in one Docker image, deployed behind a
+reverse proxy like Caddy. You own the deployment and the data.
+
+License: [Elastic License 2.0](./LICENSE). Free to self-host, use, modify, and
+redistribute. You may not offer it to others as a hosted or managed service;
+that requires a separate commercial license (contact us).
 
 ---
 
 ## Stack
 
 - **Runtime:** Bun (latest stable)
-- **HTTP:** Hono v4 — serves API + MCP + static React in one process
+- **HTTP:** Hono v4 (serves API + MCP + static React in one process)
 - **Frontend:** React 19 + Vite + TanStack (Router, Query, Form) + Tailwind v4
 - **UI:** shadcn/ui (copy-paste, in `apps/web/src/components/ui/`) + Vaul
   (drawers) + Sonner (toasts) + Phosphor Icons
 - **DB:** `bun:sqlite` via Drizzle ORM (beta)
-- **Auth:** Better Auth — Google sign-in (+ One Tap) for people; an OAuth 2.1
+- **Auth:** Better Auth, with Google sign-in (+ One Tap) for people; an OAuth 2.1
   provider (`@better-auth/oauth-provider` + JWT) for MCP clients like Claude
 - **Validation:** Valibot at HTTP boundaries, Zod inside MCP tool defs only
 - **Tests:** `bun:test`; Playwright for end-to-end
-- **Package manager:** pnpm 11 (hardened defaults — see `.npmrc` and
+- **Package manager:** pnpm 11 (hardened defaults, see `.npmrc` and
   `pnpm-workspace.yaml`)
 
 ## Layout
@@ -44,20 +49,21 @@ onehouse/
 │   │       └── composition.test.ts  # ← tests sit next to the code they cover
 │   └── web/                         # React + Vite + PWA
 │       ├── src/{components,features,routes,lib}/
-│       └── e2e/                     # Playwright — the only non-colocated tests
-├── packages/                        # Internal libraries — imported by apps and each other
+│       └── e2e/                     # Playwright, the only non-colocated tests
+├── packages/                        # Internal libraries, imported by apps and each other
 │   ├── core/                        # Platform plumbing
 │   │   └── src/
 │   │       ├── shared/              # Branded IDs, Result, isomorphic helpers (browser-safe)
 │   │       │   ├── ids.ts
 │   │       │   └── ids.test.ts
 │   │       └── server/              # Better Auth, db, MCP plumbing, middleware
-│   └── app-grocery/                 # First app — four subpaths enforce the boundary
-│       └── src/
-│           ├── shared/              # State machines, Valibot, types (browser-safe)
-│           ├── server/              # Drizzle schema, Hono routes, services
-│           ├── tools/               # MCP tool definitions
-│           └── ui/                  # React components reused across entry points
+│   ├── app-grocery/                 # Grocery list; four subpaths enforce the boundary
+│   │   └── src/
+│   │       ├── shared/              # State machines, Valibot, types (browser-safe)
+│   │       ├── server/              # Drizzle schema, Hono routes, services
+│   │       ├── tools/               # MCP tool definitions
+│   │       └── ui/                  # React components reused across entry points
+│   └── app-recipes/                 # Recipes; same four-subpath structure
 ├── drizzle/                         # Generated migrations (committed)
 ├── data/                            # SQLite + WAL (Docker volume)
 ├── scripts/                         # migrate.ts, backup, etc.
@@ -96,19 +102,19 @@ pnpm install
 
 # 2. Configure
 cp .env.example .env
-# edit .env — see "Auth setup" below
+# edit .env, see "Auth setup" below
 
-# 3. Install git hooks (one-time; lefthook writes .git/hooks/* — `.npmrc`
+# 3. Install git hooks (one-time; lefthook writes .git/hooks/*; `.npmrc`
 #    has `ignore-scripts=true`, so this is NOT done automatically by install)
 pnpm hooks:install
 
 # 4. Run pending migrations (auth schema is committed, drizzle/0000_*.sql too)
 pnpm db:migrate
 
-# 5. Dev (host) — server (3000) + Vite (5173) with hot reload
+# 5. Dev (host): server (3000) + Vite (5173) with hot reload
 pnpm dev
 
-# OR Dev (Docker) — bind-mounted hot reload
+# OR Dev (Docker): bind-mounted hot reload
 docker compose --profile dev up
 ```
 
@@ -126,24 +132,24 @@ any user row is created.
 2. Create an **OAuth 2.0 Client ID**, type **Web application**
 3. Authorized JavaScript origins:
    - `http://localhost:5173` (local dev)
-   - `https://app.hejmly.com` (production)
+   - `https://<your-domain>` (production)
 4. Authorized redirect URIs:
    - `http://localhost:5173/api/auth/callback/google` (local dev)
-   - `https://app.hejmly.com/api/auth/callback/google` (production)
+   - `https://<your-domain>/api/auth/callback/google` (production)
 5. Copy the Client ID + Client Secret into `.env`:
    ```ini
    GOOGLE_ID=<client id>
    GOOGLE_SECRET=<client secret>
    ```
 
-The production deployment is served at `https://app.hejmly.com`, so
-`BETTER_AUTH_URL` must be set to exactly that origin — Google sends its
-redirect back to `BETTER_AUTH_URL`, and a mismatch breaks sign-in.
+In production, set `BETTER_AUTH_URL` to your public origin (e.g.
+`https://<your-domain>`). Google sends its redirect back to `BETTER_AUTH_URL`,
+and a mismatch breaks sign-in.
 
 ### `.env` (auth-relevant fields)
 
 ```ini
-BETTER_AUTH_URL=http://localhost:5173          # public origin (prod: https://app.hejmly.com)
+BETTER_AUTH_URL=http://localhost:5173          # public origin (prod: https://<your-domain>)
 BETTER_AUTH_SECRET=<openssl rand -hex 32>       # 32+ random hex chars
 
 GOOGLE_ID=<from Google Cloud>
@@ -156,7 +162,7 @@ HEJMLY_ALLOWED_EMAILS=basile@example.com,partner@example.com
 # Public Host the MCP endpoint is reached at (DNS-rebinding allowlist). The
 # server also allows the BETTER_AUTH_URL host + localhost:$PORT automatically,
 # so local dev needs no change. In prod set it to your domain.
-MCP_HOST=localhost                              # public MCP host (prod: app.hejmly.com)
+MCP_HOST=localhost                              # public MCP host (prod: <your-domain>)
 
 DATABASE_PATH=./data/app.db
 ```
@@ -195,14 +201,17 @@ and try again.
 
 ## Connecting from Claude (MCP)
 
-The grocery list is exposed to Claude (Desktop or claude.ai) as a remote MCP
+The apps are exposed to Claude (Desktop or claude.ai) as a remote MCP
 server at `/mcp`, secured with OAuth 2.1. Better Auth is the authorization
 server: Claude self-registers via Dynamic Client Registration, you sign in with
 Google and approve a consent screen (`/consent`), and Claude receives a scoped
 bearer token. Each tool call is recorded in the audit log as `{ userId, via: "mcp" }`.
 
-Tools: `grocery.list_items`, `grocery.add_item`, `grocery.mark_purchased`,
-`grocery.mark_pending`, `grocery.update_item`, `grocery.remove_item`.
+Grocery tools: `grocery__list_items`, `grocery__add_item`, `grocery__mark_purchased`,
+`grocery__mark_pending`, `grocery__update_item`, `grocery__remove_item`.
+
+Recipes tools: `recipes__list`, `recipes__add`, `recipes__get`, `recipes__update`,
+`recipes__remove`.
 
 ### Test locally with the MCP Inspector
 
@@ -212,8 +221,8 @@ pnpm dlx @modelcontextprotocol/inspector  # opens the Inspector UI
 ```
 
 Connect to `http://localhost:5173/mcp` (transport: Streamable HTTP). The
-Inspector runs the OAuth flow in your browser — Google sign-in → `/consent` →
-back — then lists and calls the grocery tools. `localhost` is exempt from the
+Inspector runs the OAuth flow in your browser: Google sign-in → `/consent` →
+back, then lists and calls the tools. `localhost` is exempt from the
 MCP HTTPS requirement, so no TLS is needed locally.
 
 ### Add it to Claude Desktop / claude.ai
